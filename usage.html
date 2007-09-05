@@ -1,0 +1,169 @@
+<h1>Compositor Usage Reference</h1>
+
+
+	<p>This document covers the basic usage of the compositor package. For more detailed information read the documentation strings in the source.</p>
+
+
+	<h2>Asumptions</h2>
+
+
+Some assumptions about the OpenType fonts being used are made by the package:
+	<ul>
+	<li>The font is valid.</li>
+		<li>The font&#8217;s <em>cmap</em> table contains Platform 3 Encoding 1.</li>
+		<li>The font does not contain <em><span class="caps">GSUB</span></em> or <em><span class="caps">GPOS</span></em> lookup types that are not supported by the <span class="caps">GSUB</span> or <span class="caps">GPOS</span> objects. If an unsupported lookup type is present, the lookup will simply be ignored. It will not raise an error.</li>
+	</ul>
+
+
+	<h2>The Font Object</h2>
+
+
+	<h3>Importing</h3>
+
+
+<pre>
+from compositor import Font
+</pre>
+
+	<h3>Construction</h3>
+
+
+<pre>
+font = Font(path)
+</pre>
+
+	<p><strong>path</strong> A path to an OpenType font.</p>
+
+
+	<h3>Special Behavior</h3>
+
+
+<pre>
+glyph = font["aGlyphName"]
+</pre>
+
+	<p>Returns the glyph object named &#8220;aGlyphName&#8221;. This will raise a KeyError if &#8220;aGlyphName&#8221; is not in the font.</p>
+
+
+<pre>
+isThere = "aGlyphName" in font
+</pre>
+
+	<p>Returns a boolean representing if &#8220;aGlyphName&#8221; is in the font.</p>
+
+
+	<h3>Methods</h3>
+
+
+<pre>
+font.keys()
+</pre>
+
+	<p>A list of all glyph names in the font.</p>
+
+
+<pre>
+glyphRecords = font.process(aString)
+</pre>
+
+	<p>This is the most important method. It takes a string (Unicode or plain <span class="caps">ASCII</span>) and processes it with the features defined in the font&#8217;s <em><span class="caps">GSUB</span></em> and <em><span class="caps">GPOS</span></em> tables. A list of <em>GlyphRecord</em> objects will be returned.</p>
+
+
+<pre>
+featureTags = font.getFeatureList()
+</pre>
+
+	<p>A list of all available features in <span class="caps">GSUB</span> and <span class="caps">GPOS</span>.</p>
+
+
+<pre>
+state = font.getFeatureState(featureTag)
+</pre>
+
+	<p>Get a boolean representing if a feature is on or not. This assumes that the feature state is consistent in both the <span class="caps">GSUB</span> and <span class="caps">GPOS</span> tables. A <em>CompositorError</em> will be raised if the feature is inconsistently applied. A <em>CompositorError</em> will be raised if featureTag is not defined in <span class="caps">GSUB</span> or <span class="caps">GPOS</span>.</p>
+
+
+<pre>
+font.setFeatureState(self, featureTag, state)
+</pre>
+
+	<p>Set the application state of a feature.</p>
+
+
+	<h3>Attributes</h3>
+
+
+	<p><strong>info</strong> The Info object for the font.</p>
+
+
+	<h2>The GlyphRecord Object</h2>
+
+
+	<h3>Attributes</h3>
+
+
+	<p><strong>glyphName</strong> The name of the referenced glyph.</p>
+
+
+	<p><strong>xPlacement</strong> Horizontal placement.</p>
+
+
+	<p><strong>yPlacement</strong> Vertical placement.</p>
+
+
+	<p><strong>xAdvance</strong> Horizontal adjustment for advance.</p>
+
+
+	<p><strong>yAdvance</strong> Vertical adjustment for advance.</p>
+
+
+	<p><strong>alternates</strong> A list of <em>GlyphRecords</em> indicating alternates for the glyph.</p>
+
+
+	<h2>The Glyph Object</h2>
+
+
+	<h3>Methods</h3>
+
+
+<pre>
+glyph.draw(pen)
+</pre>
+
+	<p>Draws the glyph with a FontTools pen.</p>
+
+
+	<h3>Attributes</h3>
+
+
+	<p><strong>name</strong> The name of the glyph.</p>
+
+
+	<p><strong>index</strong> The glyph&#8217;s index within the source font.</p>
+
+
+	<p><strong>width</strong> The width of the glyph.</p>
+
+
+	<p><strong>bounds</strong> The bounding box for the glyph. Formatted as (xMin, yMin, xMax, yMax). If the glyph contains no outlines, this will return <em>None</em>.</p>
+
+
+	<h2>The Info Object</h2>
+
+
+	<h3>Attributes</h3>
+
+
+	<p><strong>familyName</strong></p>
+
+
+	<p><strong>styleName</strong></p>
+
+
+	<p><strong>unitsPerEm</strong></p>
+
+
+	<p><strong>ascender</strong></p>
+
+
+	<p><strong>descender</strong></p>

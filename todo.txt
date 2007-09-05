@@ -1,0 +1,21 @@
+- make the tables capable of referencing *one* cmap and reversed
+  cmap. this will allow for the cmap to change in applications
+  that would need such a thing.
+
+Not yet supported:
+GSUB Lookup Type 8 (Reverse Chaining Context)
+LookupFlag.RightToLeft
+GDEF.AttachList
+GDEF.LigCaretList
+DFLT/dflt language tags
+GPOS Lookup Types 5 & 6 may be, and probably are, buggy.
+
+Skipped:
+- should the glyph width be calculated into the glyph record's
+  x-advance before returning it to the caller?
+  - no. that is the responsibility of a render.
+- need to handle featureRecord.FeatureParams if they exist (fontTools does not read these)
+- make rand feature support smarter. look back through the
+  processed glyphs and find the alternate that has occurred
+  least frequently and farthest away. (this was skipped because
+  the rand feature is not such a good idea to begin with)

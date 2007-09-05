@@ -1,0 +1,7 @@
+h1. Relationship to the GSUB and GPOS Specification
+
+The Compositor GSUB and GPOS tables adhere as closely as possible to the GSUB and GPOS specification. Every effort has been made to keep terminology consistent. All known deviations from the spec are documented. (The deviations are generally trivial. For example, most the of the subtables don't implement the _Count_ attributes. This is done because the Python iterator provides a more convenient and faster way to deal with iteration than creating a range. Therefore, the _Count_ objects are not needed.)
+
+h1. Object Loading
+
+For performance reasons, when a new font is loaded, all of the GSUB and GPOS data is extracted from the font with fontTools. The data is placed into compositor objects. These objects are then used to process text. This initial loading can be relatively expensive, but the processing speed of the objects is worth the initial expense.

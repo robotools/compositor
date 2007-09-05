@@ -1,0 +1,133 @@
+h1. Compositor Usage Reference
+
+This document covers the basic usage of the compositor package. For more detailed information read the documentation strings in the source.
+
+h2. Asumptions
+
+Some assumptions about the OpenType fonts being used are made by the package:
+* The font is valid.
+* The font's _cmap_ table contains Platform 3 Encoding 1.
+* The font does not contain _GSUB_ or _GPOS_ lookup types that are not supported by the GSUB or GPOS objects. If an unsupported lookup type is present, the lookup will simply be ignored. It will not raise an error.
+
+h2. The Font Object
+
+h3. Importing
+
+<pre>
+from compositor import Font
+</pre>
+
+
+h3. Construction
+
+<pre>
+font = Font(path)
+</pre>
+
+*path* A path to an OpenType font.
+
+h3. Special Behavior
+
+<pre>
+glyph = font["aGlyphName"]
+</pre>
+
+Returns the glyph object named "aGlyphName". This will raise a KeyError if "aGlyphName" is not in the font.
+
+<pre>
+isThere = "aGlyphName" in font
+</pre>
+
+Returns a boolean representing if "aGlyphName" is in the font.
+
+h3. Methods
+
+<pre>
+font.keys()
+</pre>
+
+A list of all glyph names in the font.
+
+<pre>
+glyphRecords = font.process(aString)
+</pre>
+
+This is the most important method. It takes a string (Unicode or plain ASCII) and processes it with the features defined in the font's _GSUB_ and _GPOS_ tables. A list of _GlyphRecord_ objects will be returned.
+
+<pre>
+featureTags = font.getFeatureList()
+</pre>
+
+A list of all available features in GSUB and GPOS.
+
+<pre>
+state = font.getFeatureState(featureTag)
+</pre>
+
+Get a boolean representing if a feature is on or not. This assumes that the feature state is consistent in both the GSUB and GPOS tables. A _CompositorError_ will be raised if the feature is inconsistently applied. A _CompositorError_ will be raised if featureTag is not defined in GSUB or GPOS.
+
+<pre>
+font.setFeatureState(self, featureTag, state)
+</pre>
+
+Set the application state of a feature.
+
+h3. Attributes
+
+*info* The Info object for the font.
+
+
+
+h2. The GlyphRecord Object
+
+h3. Attributes
+
+*glyphName* The name of the referenced glyph.
+
+*xPlacement* Horizontal placement.
+
+*yPlacement* Vertical placement.
+
+*xAdvance* Horizontal adjustment for advance.
+
+*yAdvance* Vertical adjustment for advance.
+
+*alternates* A list of _GlyphRecords_ indicating alternates for the glyph.
+
+
+
+h2. The Glyph Object
+
+h3. Methods
+
+<pre>
+glyph.draw(pen)
+</pre>
+
+Draws the glyph with a FontTools pen.
+
+h3. Attributes
+
+*name* The name of the glyph.
+
+*index* The glyph's index within the source font.
+
+*width* The width of the glyph.
+
+*bounds* The bounding box for the glyph. Formatted as (xMin, yMin, xMax, yMax). If the glyph contains no outlines, this will return _None_.
+
+
+
+h2. The Info Object
+
+h3. Attributes
+
+*familyName*
+
+*styleName*
+
+*unitsPerEm*
+
+*ascender*
+
+*descender*
