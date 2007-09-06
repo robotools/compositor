@@ -1,6 +1,6 @@
 import unicodedata
-from layoutEngine.cmap import reverseCMAP
-from layoutEngine.caseConversionMaps import lowerToSingleUpper, upperToSingleLower, specialCasing, softDotted
+from compositor.cmap import reverseCMAP
+from compositor.caseConversionMaps import lowerToSingleUpper, upperToSingleLower, specialCasing, softDotted
 
 try:
     reversed
