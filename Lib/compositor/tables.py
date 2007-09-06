@@ -61,12 +61,12 @@ defaultOnFeatures = [
 
 class BaseTable(object):
 
-    def __init__(self, table, cmap, gdef):
+    def __init__(self, table, reversedCMAP, gdef):
         self.ScriptList = ScriptList(table.table.ScriptList)
         self.FeatureList = FeatureList(table.table.FeatureList)
         self.LookupList = self._LookupListClass(table.table.LookupList, self, gdef)
 
-        self._cmap = reverseCMAP(cmap)
+        self._cmap = reversedCMAP
 
         self._featureApplicationStates = {}
         self._applicableFeatureCache = {}
