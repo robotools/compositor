@@ -1,6 +1,12 @@
 import unicodedata
 from compositor.cmap import reverseCMAP
 from compositor.caseConversionMaps import lowerToSingleUpper, upperToSingleLower, specialCasing, softDotted
+from compositor.wordBreakProperties import wordBreakProperties
+
+try:
+    set
+except NameError:
+    from sets import Set as set
 
 try:
     reversed
@@ -10,9 +16,13 @@ except NameError:
         iterable.reverse()
         return iterable
 
+# ---------------
+# Case Conversion
+# ---------------
+
 def convertCase(case, glyphNames, cmap, reversedCMAP, language=None, fallbackGlyph=".notdef"):
     """
-    Case Connversion Function
+    Case Conversion Function
 
     This function converts a list of glyph names to their
     upper or lowercase forms following the Unicode locale
@@ -198,28 +208,157 @@ def _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, languag
             return True
     return False
 
-def _testSimple():
+# -----------------------
+# Word Boundary Detection
+# -----------------------
+
+_notInitial = set([
+    # Do not break within CRLF
+    (convertCodeToInt("240D"), convertCodeToInt("240A")),
+    # Do not break between most letters.
+    ("ALetter", "ALetter"),
+    # Do not break across certain punctuation.
+    ("ALetter", "MidLetter", "ALetter"),
+    # Do not break within sequences of digits, or digits adjacent to letters.
+    ("Numeric", "Numeric"),
+    ("Numeric", "ALetter"),
+    ("ALetter", "Numeric"),
+    # Do not break within sequences, such as "3.2" or "3,456.789".
+    ("Numeric", "MidNum", "Numeric"),
+    # Do not break between Katakana.
+    ("Katakana", "Katakana"),
+    # Do not break from extenders.
+    ("ALetter", "ExtendNumLet"),
+    ("Numeric", "ExtendNumLet"),
+    ("Katakana", "ExtendNumLet"),
+    ("ExtendNumLet", "ExtendNumLet"),
+])
+
+def isInitial(glyphNames, index, reversedCMAP):
+    glyphName = glyphNames[index]
+    # XXX fallback to False if the glyph name is not in the cmap?
+    if glyphName not in reversedCMAP:
+        return False
+    # Start of line
+    if index == 0:
+        return True
+    # get the unicode values and word break properties
+    # for the current and previous two glyphs.
+    unicodeValue = reversedCMAP[glyphName][0]
+    wordBreakProperty = wordBreakProperties.get(unicodeValue)
+    backOneUnicodeValue = reversedCMAP.get(glyphNames[index - 1], [None])[0]
+    backOneWordBreakProperty = wordBreakProperties.get(backOneUnicodeValue)
+    # XXX Not implemented:
+    # Ignore Format and Extend characters, except when they appear at the beginning of a region of text.
+    # test the previous and current unicode values
+    if (backOneUnicodeValue, unicodeValue) in _notInitial:
+        return False
+    # test the previous and current word break properties
+    if (backOneWordBreakProperty, wordBreakProperty) in _notInitial:
+        return False
+    # test the previous two and current word break properties
+    if index >= 2:
+        backTwoUnicodeValue = reversedCMAP.get(glyphNames[index - 2], [None])[0]
+        backTwoWordBreakProperty = wordBreakProperties.get(backTwoUnicodeValue)
+        if (backTwoWordBreakProperty, backOneWordBreakProperty, wordBreakProperty) in _notInitial:
+            return False
+    # Otherwise, break everywhere (including around ideographs).
+    return True
+
+# -----
+# Tests
+# -----
+
+# Word Boundary Detection
+
+def testInitial():
+    """
+    >>> cmap = {convertCodeToInt("0020") : "space",
+    ...         convertCodeToInt("0041") : "A",
+    ...         convertCodeToInt("0042") : "B",
+    ...         convertCodeToInt("0043") : "C",
+    ...         convertCodeToInt("002E") : "period",
+    ...         convertCodeToInt("003A") : "colon",
+    ...         convertCodeToInt("005F") : "underscore",
+    ...         convertCodeToInt("0031") : "one",
+    ...         convertCodeToInt("0032") : "two",
+    ...         convertCodeToInt("0033") : "three",
+    ...         convertCodeToInt("31F0") : "ku",
+    ...         convertCodeToInt("31FF") : "ro",
+    ...         }
+    >>> cmap = reverseCMAP(cmap)
+
+    # ALetter, ALetter
+    >>> isInitial(["space", "A", "B", "C"], 1, cmap)
+    True
+    >>> isInitial(["space", "A", "B", "C"], 2, cmap)
+    False
+    >>> isInitial(["space", "A", "B", "C"], 3, cmap)
+    False
+
+    # ALetter, MidLetter, ALetter
+    >>> isInitial(["colon", "A"], 1, cmap)
+    True
+    >>> isInitial(["A", "colon", "A"], 2, cmap)
+    False
+
+    # ALetter|Numeric, ALetter|Numeric
+    >>> isInitial(["space", "one", "A"], 1, cmap)
+    True
+    >>> isInitial(["space", "one", "A"], 2, cmap)
+    False
+    >>> isInitial(["space", "one", "one"], 1, cmap)
+    True
+    >>> isInitial(["space", "one", "one"], 2, cmap)
+    False
+    >>> isInitial(["space", "A", "one"], 1, cmap)
+    True
+    >>> isInitial(["space", "A", "one"], 2, cmap)
+    False
+
+    # Numeric, MidNum, Numeric
+    >>> isInitial(["one", "period", "one"], 0, cmap)
+    True
+    >>> isInitial(["one", "period", "one"], 2, cmap)
+    False
+
+    # Katakana, Katakana
+    >>> isInitial(["space", "ku", "ro"], 1, cmap)
+    True
+    >>> isInitial(["space", "ku", "ro"], 2, cmap)
+    False
+
+    # ALetter, ExtendNumLet
+    >>> isInitial(["underscore", "A"], 0, cmap)
+    True
+    >>> isInitial(["A", "underscore"], 1, cmap)
+    False
+    """
+
+# Case Conversion
+
+def testCaseConversionSimple():
     """
     >>> cmap = {convertCodeToInt("0041") : "A", convertCodeToInt("0061") : "a"}
     >>> convertCase("upper", ["a", "a.alt"], cmap, reverseCMAP(cmap), None)
     ['A', 'a.alt']
     """
 
-def _testSimpleMissing():
+def testCaseConversionSimpleMissing():
     """
     >>> cmap = {convertCodeToInt("0061") : "a"}
     >>> convertCase("upper", ["a"], cmap, reverseCMAP(cmap), None)
     ['.notdef']
     """
 
-def _testLowerAfterI():
+def testCaseConversionLowerAfterI():
     """
     >>> cmap = {convertCodeToInt("0049") : "I", convertCodeToInt("0069") : "i", convertCodeToInt("0307") : "dotabove", convertCodeToInt("0300") : "grave"}
     >>> convertCase("lower", ["I", "dotabove"], cmap, reverseCMAP(cmap), "TRK")
     ['i']
     """
 
-def _testUpperAfterSoftDotted():
+def testCaseConversionUpperAfterSoftDotted():
     """
     >>> cmap = {convertCodeToInt("0049") : "I", convertCodeToInt("0069") : "i", convertCodeToInt("0307") : "dotabove", convertCodeToInt("0300") : "grave"}
     >>> convertCase("upper", ["i", "dotabove"], cmap, reverseCMAP(cmap), "LTH")
@@ -228,7 +367,7 @@ def _testUpperAfterSoftDotted():
     ['I', 'grave', 'dotabove']
     """
 
-def _testLowerMoreAbove():
+def testCaseConversionLowerMoreAbove():
     """
     >>> cmap = {convertCodeToInt("0049") : "I", convertCodeToInt("0069") : "i", convertCodeToInt("0307") : "dotabove", convertCodeToInt("0300") : "grave"}
     >>> convertCase("lower", ["I", "grave"], cmap, reverseCMAP(cmap), "LTH")
@@ -239,7 +378,7 @@ def _testLowerMoreAbove():
     ['i', 'i']
     """
 
-def _testLowerNotBeforeDot():
+def testCaseConversionLowerNotBeforeDot():
     """
     >>> cmap = {convertCodeToInt("0049") : "I", convertCodeToInt("0069") : "i", convertCodeToInt("0307") : "dotabove", convertCodeToInt("0131") : "dotlessi", convertCodeToInt("0327") : "cedilla"}
     >>> convertCase("lower", ["I"], cmap, reverseCMAP(cmap), "TRK")
