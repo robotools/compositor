@@ -62,11 +62,11 @@ def convertCase(case, glyphNames, cmap, reversedCMAP, language=None, fallbackGly
         ## special casing
         # specific language
         if language is not None:
-            madeChange = _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, language)
+            madeChange = _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, reversedCMAP, language)
             if madeChange:
                 continue
         # no specific language required
-        madeChange = _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, None)
+        madeChange = _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, reversedCMAP, None)
         if madeChange:
             continue
         ## single casing
@@ -95,7 +95,7 @@ def convertCodeToInt(code):
         return tuple([convertCodeToInt(i) for i in code.split(" ")])
     return int(code, 16)
 
-def _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, language):
+def _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, reversedCMAP, language):
     """
     Handle a language specific lookup.
     Returns a boolean indicating if a change was made.
@@ -193,6 +193,16 @@ def _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, languag
                         combining = unicodedata.combining(unichr(otherUniValue))
                         if combining == 0 or combining == 230:
                             break
+            ## Final_Sigma
+            # Within the closest word boundaries 
+            # containing C, there is a cased letter 
+            # before C, and there is no cased letter 
+            # after C.
+            elif context == "Final_Sigma":
+                glyphNames = [cmap.get(i, i) for i in glyphs]
+                if isWordBreakAfter(glyphNames, index, reversedCMAP):
+                    contextMatch = True
+            ## Unknown
             else:
                 raise NotImplementedError(context)
         if contextMatch:
@@ -347,7 +357,9 @@ def isWordBreakAfter(glyphNames, index, reversedCMAP):
 
 def testCaseConversionSimple():
     """
-    >>> cmap = {convertCodeToInt("0041") : "A", convertCodeToInt("0061") : "a"}
+    >>> cmap = {convertCodeToInt("0041") : "A",
+    ...         convertCodeToInt("0061") : "a"
+    ...         }
     >>> convertCase("upper", ["a", "a.alt"], cmap, reverseCMAP(cmap), None)
     ['A', 'a.alt']
     """
@@ -361,14 +373,22 @@ def testCaseConversionSimpleMissing():
 
 def testCaseConversionLowerAfterI():
     """
-    >>> cmap = {convertCodeToInt("0049") : "I", convertCodeToInt("0069") : "i", convertCodeToInt("0307") : "dotabove", convertCodeToInt("0300") : "grave"}
+    >>> cmap = {convertCodeToInt("0049") : "I",
+    ...         convertCodeToInt("0069") : "i",
+    ...         convertCodeToInt("0307") : "dotabove",
+    ...         convertCodeToInt("0300") : "grave"
+    ...         }
     >>> convertCase("lower", ["I", "dotabove"], cmap, reverseCMAP(cmap), "TRK")
     ['i']
     """
 
 def testCaseConversionUpperAfterSoftDotted():
     """
-    >>> cmap = {convertCodeToInt("0049") : "I", convertCodeToInt("0069") : "i", convertCodeToInt("0307") : "dotabove", convertCodeToInt("0300") : "grave"}
+    >>> cmap = {convertCodeToInt("0049") : "I",
+    ...         convertCodeToInt("0069") : "i",
+    ...         convertCodeToInt("0307") : "dotabove",
+    ...         convertCodeToInt("0300") : "grave"
+    ...         }
     >>> convertCase("upper", ["i", "dotabove"], cmap, reverseCMAP(cmap), "LTH")
     ['I']
     >>> convertCase("upper", ["i", "grave", "dotabove"], cmap, reverseCMAP(cmap), "LTH")
@@ -377,7 +397,11 @@ def testCaseConversionUpperAfterSoftDotted():
 
 def testCaseConversionLowerMoreAbove():
     """
-    >>> cmap = {convertCodeToInt("0049") : "I", convertCodeToInt("0069") : "i", convertCodeToInt("0307") : "dotabove", convertCodeToInt("0300") : "grave"}
+    >>> cmap = {convertCodeToInt("0049") : "I",
+    ...         convertCodeToInt("0069") : "i",
+    ...         convertCodeToInt("0307") : "dotabove",
+    ...         convertCodeToInt("0300") : "grave"
+    ...         }
     >>> convertCase("lower", ["I", "grave"], cmap, reverseCMAP(cmap), "LTH")
     ['i', 'dotabove', 'grave']
     >>> convertCase("lower", ["I", "I", "grave"], cmap, reverseCMAP(cmap), "LTH")
@@ -388,13 +412,31 @@ def testCaseConversionLowerMoreAbove():
 
 def testCaseConversionLowerNotBeforeDot():
     """
-    >>> cmap = {convertCodeToInt("0049") : "I", convertCodeToInt("0069") : "i", convertCodeToInt("0307") : "dotabove", convertCodeToInt("0131") : "dotlessi", convertCodeToInt("0327") : "cedilla"}
+    >>> cmap = {convertCodeToInt("0049") : "I",
+    ...         convertCodeToInt("0069") : "i",
+    ...         convertCodeToInt("0307") : "dotabove",
+    ...         convertCodeToInt("0131") : "dotlessi",
+    ...         convertCodeToInt("0327") : "cedilla"
+    ...         }
     >>> convertCase("lower", ["I"], cmap, reverseCMAP(cmap), "TRK")
     ['dotlessi']
     >>> convertCase("lower", ["I", "dotabove"], cmap, reverseCMAP(cmap), "TRK")
     ['i']
     >>> convertCase("lower", ["I", "cedilla", "dotabove"], cmap, reverseCMAP(cmap), "TRK")
     ['i', 'cedilla']
+    """
+
+def testCaseConversionFinalSigma():
+    """
+    >>> cmap = {convertCodeToInt("03A3") : "Sigma",
+    ...         convertCodeToInt("03C3") : "sigma",
+    ...         convertCodeToInt("03C2") : "finalsigma",
+    ...         convertCodeToInt("0020") : "space",
+    ...         }
+    >>> convertCase("lower", ["Sigma", "Sigma"], cmap, reverseCMAP(cmap))
+    ['sigma', 'finalsigma']
+    >>> convertCase("lower", ["Sigma", "Sigma", "space"], cmap, reverseCMAP(cmap))
+    ['sigma', 'finalsigma', 'space']
     """
 
 # Word Boundaries
