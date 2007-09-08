@@ -243,13 +243,12 @@ def isInitial(glyphNames, index, reversedCMAP):
     if index == 0:
         return True
     # get the unicode values and word break properties
-    # for the current and previous two glyphs.
+    # for the current and previous glyphs.
     unicodeValue = reversedCMAP[glyphName][0]
     wordBreakProperty = wordBreakProperties.get(unicodeValue)
     backOneUnicodeValue = reversedCMAP.get(glyphNames[index - 1], [None])[0]
     backOneWordBreakProperty = wordBreakProperties.get(backOneUnicodeValue)
-    # XXX Not implemented:
-    # Ignore Format and Extend characters, except when they appear at the beginning of a region of text.
+    # XXX Not implemented: Ignore Format and Extend characters, except when they appear at the beginning of a region of text.
     # test the previous and current unicode values
     if (backOneUnicodeValue, unicodeValue) in _notInitial:
         return False
@@ -265,9 +264,69 @@ def isInitial(glyphNames, index, reversedCMAP):
     # Otherwise, break everywhere (including around ideographs).
     return True
 
+_notFinal = set([
+    # Do not break within CRLF
+    (convertCodeToInt("240D"), convertCodeToInt("240A")),
+    # Do not break between most letters.
+    ("ALetter", "ALetter"),
+    # Do not break across certain punctuation.
+    ("ALetter", "MidLetter", "ALetter"),
+    # Do not break within sequences of digits, or digits adjacent to letters.
+    ("Numeric", "Numeric"),
+    ("Numeric", "ALetter"),
+    ("ALetter", "Numeric"),
+    # Do not break within sequences, such as "3.2" or "3,456.789".
+    ("Numeric", "MidNum", "Numeric"),
+    # Do not break between Katakana.
+    ("Katakana", "Katakana"),
+    # Do not break from extenders.
+    ("ExtendNumLet", "ALetter"),
+    ("ExtendNumLet", "Numeric"),
+    ("ExtendNumLet", "Katakana"),
+])
+
+def isFinal(glyphNames, index, reversedCMAP):
+    glyphName = glyphNames[index]
+    # XXX fallback to False if the glyph name is not in the cmap?
+    if glyphName not in reversedCMAP:
+        return False
+    # End of line
+    if index == len(glyphNames) - 1:
+        return True
+    # get the unicode values and word break properties
+    # for the current and next glyphs.
+    unicodeValue = reversedCMAP[glyphName][0]
+    wordBreakProperty = wordBreakProperties.get(unicodeValue)
+    forwardOneUnicodeValue = reversedCMAP.get(glyphNames[index + 1], [None])[0]
+    forwardOneWordBreakProperty = wordBreakProperties.get(forwardOneUnicodeValue)
+    # XXX Not implemented: Ignore Format and Extend characters, except when they appear at the beginning of a region of text.
+    # test the current and next unicode values
+    if (unicodeValue, forwardOneUnicodeValue) in _notFinal:
+        return False
+    # test the current and next word break properties
+    if (wordBreakProperty, forwardOneWordBreakProperty) in _notFinal:
+        return False
+    # test the current and next two word break properties
+    if index <= len(glyphNames) - 3:
+        forwardTwoUnicodeValue = reversedCMAP.get(glyphNames[index + 2], [None])[0]
+        forwardTwoWordBreakProperty = wordBreakProperties.get(forwardTwoUnicodeValue)
+        if (wordBreakProperty, forwardOneWordBreakProperty, forwardTwoWordBreakProperty) in _notFinal:
+            return False
+    # Otherwise, break everywhere (including around ideographs).
+    return True
+
+
 # -----
 # Tests
 # -----
+
+"""
+Edge cases to consider:
+space A space - the A should be tagged as isolated
+A - the A should be tagged as isolated
+A space - the A should be tagged as isolated
+space A - the A should be tagged as isolated
+"""
 
 # Word Boundary Detection
 
@@ -317,9 +376,9 @@ def testInitial():
     False
 
     # Numeric, MidNum, Numeric
-    >>> isInitial(["one", "period", "one"], 0, cmap)
+    >>> isInitial(["space", "one", "period", "one"], 1, cmap)
     True
-    >>> isInitial(["one", "period", "one"], 2, cmap)
+    >>> isInitial(["space", "one", "period", "one"], 3, cmap)
     False
 
     # Katakana, Katakana
@@ -332,6 +391,70 @@ def testInitial():
     >>> isInitial(["underscore", "A"], 0, cmap)
     True
     >>> isInitial(["A", "underscore"], 1, cmap)
+    False
+    """
+
+def testFinal():
+    """
+    >>> cmap = {convertCodeToInt("0020") : "space",
+    ...         convertCodeToInt("0041") : "A",
+    ...         convertCodeToInt("0042") : "B",
+    ...         convertCodeToInt("0043") : "C",
+    ...         convertCodeToInt("002E") : "period",
+    ...         convertCodeToInt("003A") : "colon",
+    ...         convertCodeToInt("005F") : "underscore",
+    ...         convertCodeToInt("0031") : "one",
+    ...         convertCodeToInt("0032") : "two",
+    ...         convertCodeToInt("0033") : "three",
+    ...         convertCodeToInt("31F0") : "ku",
+    ...         convertCodeToInt("31FF") : "ro",
+    ...         }
+    >>> cmap = reverseCMAP(cmap)
+
+    # ALetter, ALetter
+    >>> isFinal(["A", "B", "C", "space"], 0, cmap)
+    False
+    >>> isFinal(["A", "B", "C", "space"], 1, cmap)
+    False
+    >>> isFinal(["A", "B", "C", "space"], 2, cmap)
+    True
+
+    # ALetter, MidLetter, ALetter
+    >>> isFinal(["A", "colon"], 0, cmap)
+    True
+    >>> isFinal(["A", "colon", "A"], 0, cmap)
+    False
+
+    # ALetter|Numeric, ALetter|Numeric
+    >>> isFinal(["one", "A", "space"], 1, cmap)
+    True
+    >>> isFinal(["one", "A", "space"], 0, cmap)
+    False
+    >>> isFinal(["one", "one", "space"], 1, cmap)
+    True
+    >>> isFinal(["one", "one", "space"], 0, cmap)
+    False
+    >>> isFinal(["A", "one", "space"], 1, cmap)
+    True
+    >>> isFinal(["A", "one", "space"], 0, cmap)
+    False
+
+    # Numeric, MidNum, Numeric
+    >>> isFinal(["one", "period", "one", "space"], 0, cmap)
+    False
+    >>> isFinal(["one", "period", "one", "space"], 2, cmap)
+    True
+
+    # Katakana, Katakana
+    >>> isFinal(["ku", "ro", "space"], 0, cmap)
+    False
+    >>> isFinal(["ku", "ro", "space"], 1, cmap)
+    True
+
+    # ALetter, ExtendNumLet
+    >>> isFinal(["underscore", "A"], 1, cmap)
+    True
+    >>> isFinal(["underscore", "A"], 0, cmap)
     False
     """
 
