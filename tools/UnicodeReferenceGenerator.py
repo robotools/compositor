@@ -1,9 +1,10 @@
 """
-This script generates the caseConversionMaps.py module.
+This script generates the caseConversionMaps.py and wordBreakProperties.py modules.
 It references the following Unicode files:
     PropList.txt
     SpecialCasing.txt
     UnicodeData.txt
+    WordBreakProperty.txt
 """
 
 import os
