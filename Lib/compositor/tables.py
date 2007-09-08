@@ -22,6 +22,7 @@ from scriptList import ScriptList
 from featureList import FeatureList
 from lookupList import GSUBLookupList, GPOSLookupList
 from classDefinitionTables import MarkAttachClassDef, GlyphClassDef
+from textUtilities import isWordBreakBefore, isWordBreakAfter
 
 
 defaultOnFeatures = [
@@ -248,7 +249,7 @@ class BaseTable(object):
 
     def _processLookups(self, glyphRecords, lookups, processingAalt=False, logger=None):
         aaltHolding = []
-        whitespaceSensitive = set(["init", "medi", "fina", "isol"])
+        boundarySensitive = set(["init", "medi", "fina", "isol"])
         for featureTag, lookup in lookups:
             # store aalt for processing at the end
             if not processingAalt and featureTag == "aalt":
@@ -257,34 +258,26 @@ class BaseTable(object):
             if logger:
                 logger.logLookupStart(self, featureTag, lookup)
             processed = []
-            # init, medi and fina need to be aware
-            # of word boundaries. determining the
-            # boundaries incurs some expense, so
-            # only do it when necessary.
-            testForWhitespace = featureTag in whitespaceSensitive
-            if testForWhitespace:
-                previousWasWhitespace = True
-                nextIsWhiteSpace = self._nextIsWhitespace(glyphRecords)
             # loop through the glyph records
             while glyphRecords:
                 skip = False
-                if testForWhitespace:
-                    previousWasWhitespace = self._previousWasWhitespace(processed)
-                    nextIsWhiteSpace = self._nextIsWhitespace(glyphRecords)
-                    if featureTag == "init" and not previousWasWhitespace:
+                if featureTag in boundarySensitive:
+                    glyphNames = [r.glyphName for r in processed] + [r.glyphName for r in glyphRecords]
+                    index = len(processed)
+                    wordBreakBefore = isWordBreakBefore(glyphNames, index, self._cmap)
+                    wordBreakAfter = isWordBreakAfter(glyphNames, index, self._cmap)
+                if featureTag == "init":
+                    if not wordBreakBefore or wordBreakAfter:
                         skip = True
-                    elif featureTag == "fina" and not nextIsWhiteSpace:
+                elif featureTag == "medi":
+                    if wordBreakBefore or wordBreakAfter:
                         skip = True
-                    elif featureTag == "medi":
-                        if previousWasWhitespace:
-                            skip = True
-                        if nextIsWhiteSpace:
-                            skip = True
-                    elif featureTag == "isol":
-                        if not previousWasWhitespace:
-                            skip = True
-                        if not nextIsWhiteSpace:
-                            skip = True
+                elif featureTag == "fina":
+                    if wordBreakBefore or not wordBreakAfter:
+                        skip = True
+                elif featureTag == "isol":
+                    if not wordBreakBefore or not wordBreakAfter:
+                        skip = True
                 # loop through the lookups subtables
                 performedAction = False
                 if not skip:
@@ -314,32 +307,6 @@ class BaseTable(object):
             if performedAction:
                 break
         return processed, glyphRecords, performedAction
-
-    # ------------------
-    # whitespace testing
-    # ------------------
-
-    def _isWhitespace(self, glyphRecord):
-        glyphName = glyphRecord.glyphName
-        if glyphName not in self._cmap:
-            return False
-        for uniValue in self._cmap[glyphName]:
-            uniChr = unichr(uniValue)
-            if unicodedata.category(uniChr) == "Zs":
-                return True
-        return False
-
-    def _previousWasWhitespace(self, processed):
-        if not processed:
-            return True
-        glyphRecord = processed[-1]
-        return self._isWhitespace(glyphRecord)
-
-    def _nextIsWhitespace(self, glyphRecords):
-        if len(glyphRecords) < 2:
-            return True
-        glyphRecord = glyphRecords[1]
-        return self._isWhitespace(glyphRecord)
 
 
 class GSUB(BaseTable):
