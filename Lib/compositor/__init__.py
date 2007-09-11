@@ -194,6 +194,24 @@ class Font(object):
     # feature management
     # ------------------
 
+    def getScriptList(self):
+        gsub = []
+        gpos = []
+        if self.gsub is not None:
+            gsub = self.gsub.getScriptList()
+        if self.gpos is not None:
+            gpos = self.gpos.getScriptList()
+        return sorted(set(gsub + gpos))
+
+    def getLanguageList(self):
+        gsub = []
+        gpos = []
+        if self.gsub is not None:
+            gsub = self.gsub.getLanguageList()
+        if self.gpos is not None:
+            gpos = self.gpos.getLanguageList()
+        return sorted(set(gsub + gpos))
+
     def getFeatureList(self):
         gsub = []
         gpos = []

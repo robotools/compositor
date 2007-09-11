@@ -109,6 +109,31 @@ class BaseTable(object):
     def __contains__(self, featureTag):
         return featureTag in self._featureTags
 
+    def getScriptList(self):
+        """
+        Get a list of all available scripts in the table.
+        """
+        found = []
+        for scriptRecord in self.ScriptList.ScriptRecord:
+            scriptTag = scriptRecord.ScriptTag
+            if scriptTag not in found:
+                found.append(scriptTag)
+        return found
+
+    def getLanguageList(self):
+        """
+        Get a list of all available languages in the table.
+        """
+        found = []
+        for scriptRecord in self.ScriptList.ScriptRecord:
+            script = scriptRecord.Script
+            if script.LangSysCount:
+                for langSysRecord in script.LangSysRecord:
+                    langSysTag = langSysRecord.LangSysTag
+                    if langSysTag not in found:
+                        found.append(langSysTag)
+        return found
+
     def getFeatureList(self):
         """
         Get a list of all available features in the table.
