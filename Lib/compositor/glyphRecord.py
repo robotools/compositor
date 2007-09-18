@@ -1,3 +1,12 @@
+try:
+    reversed
+except NameError:
+    def reversed(iterable):
+        iterable = list(iterable)
+        iterable.reverse()
+        return iterable
+
+
 class GlyphRecord(object):
 
     """
@@ -40,12 +49,30 @@ class GlyphRecord(object):
     - ligatureComponents
       This is a list of glyph names that are the
       components of a ligature.
+
+    This object contains three methods for making educated
+    guesses about Unicode values. This is necessary when
+    word breaks are determined.
+    - saveState
+      This method saves the glyph name provided, which
+      can either be a glyph name or a list of glyph names
+      in the case of lgatures. This will add the glyph name
+      to the record's substitution history. This should be
+      done before a substitution is made.
+    - getSide1GlyphNameWithUnicodeValue
+    - getSide2GlyphNameWithUnicodeValue
+      These two methods find the most recent glyph name
+      for each side that has a Unicode value. When called,
+      they work backwards through the glyph names saved with
+      the saveState method until a glyph name with a Unicode
+      value is found.
     """
 
     __slots__ = ["glyph", "glyphName", "xPlacement", "yPlacement",
                 "xAdvance", "yAdvance",
                 "alternates", "_alternatesReference",
-                "ligatureComponents", "_ligatureComponents", "_ligatureComponentsReference"]
+                "ligatureComponents", "_ligatureComponents", "_ligatureComponentsReference",
+                "_substitutionHistory"]
 
     def __init__(self, glyphName):
         self.glyph = None
@@ -57,6 +84,7 @@ class GlyphRecord(object):
         self.alternates = []
         self._alternatesReference = None
         self._ligatureComponents = []
+        self._substitutionHistory = []
 
     def __repr__(self):
         name = str(self.glyphName)
@@ -81,6 +109,32 @@ class GlyphRecord(object):
         self._ligatureComponents = list(components)
 
     ligatureComponents = property(_get_ligatureComponents, _set_ligatureComponents)
+
+    def saveState(self, glyphName):
+        if isinstance(glyphName, list):
+            glyphName = list(glyphName)
+        self._substitutionHistory.append(glyphName)
+
+    def getSide1GlyphNameWithUnicodeValue(self, reversedCMAP):
+        if self.glyphName in reversedCMAP:
+            return self.glyphName
+        for glyphName in reversed(self._substitutionHistory):
+            if isinstance(glyphName, list):
+                glyphName = glyphName[0]
+            if glyphName in reversedCMAP:
+                return glyphName
+        return None
+
+    def getSide2GlyphNameWithUnicodeValue(self, reversedCMAP):
+        if self.glyphName in reversedCMAP:
+            return self.glyphName
+        for glyphName in reversed(self._substitutionHistory):
+            if isinstance(glyphName, list):
+                glyphName = glyphName[-1]
+            if glyphName in reversedCMAP:
+                return glyphName
+        return None
+
 
 def glyphNamesToGlyphRecords(glyphList):
     """
@@ -121,7 +175,7 @@ def glyphRecordsToGlyphNames(glyphRecords):
 
 def _testMath():
     """
-    >>> from subTables import ValueRecord
+    >>> from subTablesGPOS import ValueRecord
     >>> vr = ValueRecord(None)
     >>> vr.XPlacement = 1
     >>> vr.YPlacement = 2
@@ -134,6 +188,31 @@ def _testMath():
     >>> gr.yAdvance = 4
     >>> gr + vr
     <GlyphRecord: Name: foo XPlacement: 2 YPlacement: 4 XAdvance: 6 YAdvance: 8>
+    """
+
+def _testUnicodeGuessing():
+    """
+    >>> cmap = {
+    ... "a" : 97,
+    ... "b" : 98,
+    ... }
+    >>> r = GlyphRecord("a")
+    >>> r.saveState("a")
+    >>> r.glyphName = "a.alt1"
+    >>> r.saveState("a.alt1")
+    >>> r.glyphName = "a.alt2"
+    >>> r.getSide1GlyphNameWithUnicodeValue(cmap)
+    'a'
+    >>> r.glyphName = "b"
+    >>> r.getSide1GlyphNameWithUnicodeValue(cmap)
+    'b'
+    >>> r = GlyphRecord("a")
+    >>> r.saveState(["a", "b"])
+    >>> r.glyphName = "a_b"
+    >>> r.getSide1GlyphNameWithUnicodeValue(cmap)
+    'a'
+    >>> r.getSide2GlyphNameWithUnicodeValue(cmap)
+    'b'
     """
 
 if __name__ == "__main__":

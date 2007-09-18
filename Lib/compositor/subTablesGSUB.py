@@ -77,6 +77,7 @@ class GSUBLookupType1Format2(BaseSubTable):
                     currentRecord.alternates.append(substitute)
                 # standard behavior
                 else:
+                    currentRecord.saveState(currentRecord.glyphName)
                     currentRecord.glyphName = substitute
                 processed.append(currentRecord)
                 glyphRecords = glyphRecords[1:]
@@ -109,6 +110,7 @@ class GSUBLookupType2(BaseSubTable):
         currentGlyph  = currentRecord.glyphName
         if currentGlyph in self.Coverage:
             if not self._lookupFlagCoversGlyph(currentGlyph):
+                # XXX all glyph subsitituion states are destroyed here
                 performedSub = True
                 index = self.Coverage.index(currentGlyph)
                 sequence = self.Sequence[index]
@@ -172,7 +174,8 @@ class GSUBLookupType3(BaseSubTable):
                 alternates = alternateSet.Alternate
                 # special behavior for rand
                 if featureTag == "rand":
-                    currentRecord._glyphName = choice(alternates)
+                    currentRecord.saveState(currentRecord.glyphName)
+                    currentRecord.glyphName = choice(alternates)
                 # standard behavior
                 else:
                     if currentRecord._alternatesReference != currentGlyph:
@@ -254,6 +257,7 @@ class GSUBLookupType4(BaseSubTable):
                                         break
                         if lastWasMatch and currentComponentIndex == componentCount - 1:
                             performedSub = True
+                            currentRecord.saveState([currentGlyph] + ligature.Component)
                             currentRecord.glyphName = ligature.LigGlyph
                             currentRecord.ligatureComponents = [currentGlyph] + ligature.Component
                             processed.append(currentRecord)

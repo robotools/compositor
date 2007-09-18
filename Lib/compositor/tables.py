@@ -287,10 +287,11 @@ class BaseTable(object):
             while glyphRecords:
                 skip = False
                 if featureTag in boundarySensitive:
-                    glyphNames = [r.glyphName for r in processed] + [r.glyphName for r in glyphRecords]
+                    side1GlyphNames = [r.getSide1GlyphNameWithUnicodeValue(self._cmap) for r in processed] + [r.getSide1GlyphNameWithUnicodeValue(self._cmap) for r in glyphRecords]
+                    side2GlyphNames = [r.getSide2GlyphNameWithUnicodeValue(self._cmap) for r in processed] + [r.getSide2GlyphNameWithUnicodeValue(self._cmap) for r in glyphRecords]
                     index = len(processed)
-                    wordBreakBefore = isWordBreakBefore(glyphNames, index, self._cmap)
-                    wordBreakAfter = isWordBreakAfter(glyphNames, index, self._cmap)
+                    wordBreakBefore = isWordBreakBefore(side1GlyphNames, index, self._cmap)
+                    wordBreakAfter = isWordBreakAfter(side2GlyphNames, index, self._cmap)
                 if featureTag == "init":
                     if not wordBreakBefore or wordBreakAfter:
                         skip = True
