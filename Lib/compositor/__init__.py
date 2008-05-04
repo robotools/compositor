@@ -162,7 +162,7 @@ class Font(object):
 
     def process(self, stringOrGlyphList, script="latn", langSys=None, rightToLeft=False, case="unchanged", logger=None):
         if isinstance(stringOrGlyphList, basestring):
-            stringOrGlyphList = self.stringToGlyphNames(stringToGlyphNames)
+            stringOrGlyphList = self.stringToGlyphNames(stringOrGlyphList)
         if case != "unchanged":
             stringOrGlyphList = convertCase(case, stringOrGlyphList, self.cmap, self.reversedCMAP, langSys, self.fallbackGlyph)
         glyphRecords = self.glyphListToGlyphRecords(stringOrGlyphList)
