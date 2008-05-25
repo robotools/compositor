@@ -29,7 +29,7 @@ class CompositorError(Exception): pass
 
 class Font(object):
 
-    def __init__(self, path):
+    def __init__(self, path, glyphClass=None):
         self.path = path
         self.fallbackGlyph = ".notdef"
         self.source = TTFont(path)
@@ -37,6 +37,9 @@ class Font(object):
         self.loadInfo()
         self.loadCMAP()
         self.loadFeatures()
+        if glyphClass is None:
+            glyphClass = Glyph
+        self.glyphClass = glyphClass
 
     def __del__(self):
         self.source.close()
@@ -130,7 +133,7 @@ class Font(object):
     def __getitem__(self, name):
         glyph = self.glyphSet[name]
         index = self._glyphOrder[name]
-        return Glyph(name, index, glyph, self)
+        return self.glyphClass(name, index, glyph, self)
 
     # -----------------
     # string processing
