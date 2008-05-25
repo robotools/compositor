@@ -250,6 +250,13 @@ class Font(object):
             if featureTag in self.gpos:
                 self.gpos.setFeatureState(featureTag, state)
 
+    # -------------
+    # Miscellaneous
+    # -------------
+
+    def getGlyphOrder(self):
+        return self.source.getGlyphOrder()
+
 
 class Info(object): pass
 
@@ -271,7 +278,7 @@ class Glyph(object):
 
     def _getBounds(self):
         from fontTools.pens.boundsPen import BoundsPen
-        pen = BoundsPen(self.parent())
+        pen = BoundsPen(self.font())
         self.draw(pen)
         return pen.bounds
     bounds = property(_getBounds)
