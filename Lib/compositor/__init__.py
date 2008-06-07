@@ -67,9 +67,12 @@ class Font(object):
         self.info = info = Info()
         head = self.source["head"]
         hhea = self.source["hhea"]
+        os2 = self.source["OS/2"]
         info.unitsPerEm = head.unitsPerEm
         info.ascender = hhea.ascent
         info.descender = hhea.descent
+        info.xHeight = os2.sxHeight
+        info.capHeight = os2.sCapHeight
         # names
         nameIDs = {}
         for nameRecord in self.source["name"].names:
