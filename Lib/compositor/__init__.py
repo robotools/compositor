@@ -32,6 +32,7 @@ class Font(object):
     def __init__(self, path, glyphClass=None):
         self.path = path
         self.fallbackGlyph = ".notdef"
+        self._glyphs = {}
         self.source = TTFont(path)
         self.loadGlyphSet()
         self.loadInfo()
@@ -42,6 +43,7 @@ class Font(object):
         self.glyphClass = glyphClass
 
     def __del__(self):
+        del self._glyphs
         self.source.close()
         del self.source
 
@@ -117,11 +119,11 @@ class Font(object):
         self.gpos = None
         self.gdef = None
         if self.source.has_key("GDEF"):
-            self.gdef = GDEF(self.source["GDEF"])
+            self.gdef = GDEF().loadFromFontTools(self.source["GDEF"])
         if self.source.has_key("GSUB"):
-            self.gsub = GSUB(self.source["GSUB"], self.reversedCMAP, self.gdef)
+            self.gsub = GSUB().loadFromFontTools(self.source["GSUB"], self.reversedCMAP, self.gdef)
         if self.source.has_key("GPOS"):
-            self.gpos = GPOS(self.source["GPOS"], self.reversedCMAP, self.gdef)
+            self.gpos = GPOS().loadFromFontTools(self.source["GPOS"], self.reversedCMAP, self.gdef)
 
     # -------------
     # dict behavior
@@ -134,9 +136,12 @@ class Font(object):
         return self.glyphSet.has_key(name)
 
     def __getitem__(self, name):
-        glyph = self.glyphSet[name]
-        index = self._glyphOrder[name]
-        return self.glyphClass(name, index, glyph, self)
+        if name not in self._glyphs:
+            glyph = self.glyphSet[name]
+            index = self._glyphOrder[name]
+            glyph = self.glyphClass(name, index, glyph, self)
+            self._glyphs[name] = glyph
+        return self._glyphs[name]
 
     # -----------------
     # string processing
