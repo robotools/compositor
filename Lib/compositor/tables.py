@@ -62,18 +62,25 @@ defaultOnFeatures = [
 
 class BaseTable(object):
 
-    def __init__(self, table, reversedCMAP, gdef):
-        self.ScriptList = ScriptList(table.table.ScriptList)
-        self.FeatureList = FeatureList(table.table.FeatureList)
-        self.LookupList = self._LookupListClass(table.table.LookupList, self, gdef)
+    def __init__(self, reversedCMAP={}):
+        self.ScriptList = None
+        self.FeatureList = None
+        self.LookupList = None
 
         self._cmap = reversedCMAP
 
         self._featureApplicationStates = {}
         self._applicableFeatureCache = {}
         self._featureTags = None
+
+    def loadFromFontTools(self, table, reversedCMAP, gdef):
+        self._cmap = reversedCMAP
+        self.ScriptList = ScriptList().loadFromFontTools(table.table.ScriptList)
+        self.FeatureList = FeatureList().loadFromFontTools(table.table.FeatureList)
+        self.LookupList = self._LookupListClass().loadFromFontTools(table.table.LookupList, gdef)
         self.getFeatureList()
         self._setDefaultFeatureApplicationStates()
+        return self
 
     def process(self, glyphRecords, script="latn", langSys=None, logger=None):
         """
@@ -348,9 +355,13 @@ class GPOS(BaseTable):
 
 class GDEF(object):
 
-    def __init__(self, table):
+    def __init__(self):
+        self.GlyphClassDef = None
+        self.MarkAttachClassDef = None
+
+    def loadFromFontTools(self, table):
         table = table.table
-        self.GlyphClassDef = GlyphClassDef(table.GlyphClassDef)
+        self.GlyphClassDef = GlyphClassDef().loadFromFontTools(table.GlyphClassDef)
         if table.AttachList is not None:
             raise NotImplementedError("Need GDEF sample with AttachList")
         if table.LigCaretList is not None:
@@ -358,5 +369,5 @@ class GDEF(object):
         if table.MarkAttachClassDef is None:
             self.MarkAttachClassDef = None
         else:
-            self.MarkAttachClassDef = MarkAttachClassDef(table.MarkAttachClassDef)
-
+            self.MarkAttachClassDef = MarkAttachClassDef().loadFromFontTools(table.MarkAttachClassDef)
+        return self

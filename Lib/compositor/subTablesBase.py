@@ -34,8 +34,12 @@ class BaseSubTable(object):
 
     __slots__ = ["_lookup"]
 
-    def __init__(self, subtable, lookup):
+    def __init__(self):
+        self._lookup = None
+
+    def loadFromFontTools(self, subtable, lookup):
         self._lookup = weakref.ref(lookup)
+        return self
 
     def process(self, processed, glyphRecords, featureTag):
         if self._lookup is not None and hasattr(self._lookup(), "LookupType"):
@@ -339,14 +343,24 @@ class BaseChainingContextFormat3SubTable(BaseChainingContextSubTable):
     __slots__ = ["BacktrackGlyphCount", "BacktrackCoverage", "InputGlyphCount",
                 "InputCoverage", "LookAheadGlyphCount", "LookAheadCoverage"]
 
-    def __init__(self, subtable, lookup):
-        super(BaseChainingContextFormat3SubTable, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(BaseChainingContextFormat3SubTable, self).__init__()
+        self.BacktrackGlyphCount = 0
+        self.BacktrackCoverage = []
+        self.InputGlyphCount = 0
+        self.InputCoverage = []
+        self.LookAheadGlyphCount = 0
+        self.LookAheadCoverage = []
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(BaseChainingContextFormat3SubTable, self).loadFromFontTools(subtable, lookup)
         self.BacktrackGlyphCount = subtable.BacktrackGlyphCount
-        self.BacktrackCoverage = [Coverage(coverage) for coverage in subtable.BacktrackCoverage]
+        self.BacktrackCoverage = [Coverage().loadFromFontTools(coverage) for coverage in subtable.BacktrackCoverage]
         self.InputGlyphCount = subtable.InputGlyphCount
-        self.InputCoverage = [Coverage(coverage) for coverage in subtable.InputCoverage]
+        self.InputCoverage = [Coverage().loadFromFontTools(coverage) for coverage in subtable.InputCoverage]
         self.LookAheadGlyphCount = subtable.LookAheadGlyphCount
-        self.LookAheadCoverage = [Coverage(coverage) for coverage in subtable.LookAheadCoverage]
+        self.LookAheadCoverage = [Coverage().loadFromFontTools(coverage) for coverage in subtable.LookAheadCoverage]
+        return self
 
     def process(self, processed, glyphRecords, featureTag):
         performedAction = False
@@ -395,9 +409,14 @@ class BaseLookupRecord(object):
 
     __slots__ = ["SequenceIndex", "LookupListIndex"]
 
-    def __init__(self, record):
+    def __init__(self):
+        self.SequenceIndex = None
+        self.LookupListIndex = None
+
+    def loadFromFontTools(self, record):
         self.SequenceIndex = record.SequenceIndex
         self.LookupListIndex = record.LookupListIndex
+        return self
 
 
 # --------
@@ -428,7 +447,13 @@ class Coverage(object):
     __slots__ = ["_glyphs", "CoverageFormat"]
 
 
-    def __init__(self, coverage):
+    def __init__(self, coverage=None):
+        self.CoverageFormat = 1
+        if coverage is not None:
+            coverage = list(coverage)
+        self._glyphs = coverage
+
+    def loadFromFontTools(self, coverage):
         # the data coming in could be a fontTools
         # Coverage object or a list of glyph names
         if isinstance(coverage, list):
@@ -437,6 +462,7 @@ class Coverage(object):
             self.CoverageFormat = coverage.Format
             coverage = coverage.glyphs
         self._glyphs = list(coverage)
+        return self
 
     def __contains__(self, glyphName):
         return glyphName in self._glyphs

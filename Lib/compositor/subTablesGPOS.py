@@ -34,7 +34,13 @@ class ValueRecord(object):
 
     __slots__ = ["XPlacement", "YPlacement", "XAdvance", "YAdvance"]
 
-    def __init__(self, valueRecord):
+    def __init__(self):
+        self.XPlacement = 0
+        self.YPlacement = 0
+        self.XAdvance = 0
+        self.YAdvance = 0
+
+    def loadFromFontTools(self, valueRecord):
         self.XPlacement = 0
         self.YPlacement = 0
         self.XAdvance = 0
@@ -47,6 +53,7 @@ class ValueRecord(object):
             self.XAdvance += valueRecord.XAdvance
         if hasattr(valueRecord, "YAdvance"):
             self.YAdvance += valueRecord.YAdvance
+        return self
 
 
 # -------------
@@ -64,12 +71,19 @@ class GPOSLookupType1Format1(BaseSubTable):
 
     __slots__ = ["Coverage", "ValueFormat", "Value"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType1Format1, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(GPOSLookupType1Format1, self).__init__()
         self.PosFormat = 1
-        self.Coverage = Coverage(subtable.Coverage)
+        self.Coverage = None
+        self.ValueFormat = None
+        self.Value = None
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType1Format1, self).loadFromFontTools(subtable, lookup)
+        self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
         self.ValueFormat = subtable.ValueFormat
-        self.Value = ValueRecord(subtable.Value)
+        self.Value = ValueRecord().loadFromFontTools(subtable.Value)
+        return self
 
     def process(self, processed, glyphRecords, featureTag):
         performedPos = False
@@ -95,12 +109,19 @@ class GPOSLookupType1Format2(BaseSubTable):
 
     __slots__ = ["Coverage", "ValueFormat", "Value"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType1Format2, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(GPOSLookupType1Format2, self).__init__()
         self.PosFormat = 2
-        self.Coverage = Coverage(subtable.Coverage)
+        self.Coverage = None
+        self.ValueFormat = None
+        self.Value = []
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType1Format2, self).loadFromFontTools(subtable, lookup)
+        self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
         self.ValueFormat = subtable.ValueFormat
-        self.Value = [ValueRecord(value) for value in subtable.Value]
+        self.Value = [ValueRecord().loadFromFontTools(value) for value in subtable.Value]
+        return self
 
     def process(self, processed, glyphRecords, featureTag):
         performedPos = False
@@ -131,13 +152,21 @@ class GPOSLookupType2Format1(BaseSubTable):
 
     __slots__ = ["Coverage", "ValueFormat1", "ValueFormat2", "PairSet"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType2Format1, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(GPOSLookupType2Format1, self).__init__()
         self.PosFormat = 1
-        self.Coverage = Coverage(subtable.Coverage)
+        self.Coverage = None
+        self.ValueFormat1 = None
+        self.ValueFormat2 = None
+        self.PairSet = []
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType2Format1, self).loadFromFontTools(subtable, lookup)
+        self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
         self.ValueFormat1 = subtable.ValueFormat1
         self.ValueFormat2 = subtable.ValueFormat2
-        self.PairSet = [PairSet(pairSet) for pairSet in subtable.PairSet]
+        self.PairSet = [PairSet().loadFromFontTools(pairSet) for pairSet in subtable.PairSet]
+        return self
 
     def process(self, processed, glyphRecords, featureTag):
         performedPos = False
@@ -177,8 +206,12 @@ class PairSet(object):
 
     __slots__ = ["PairValueRecord"]
 
-    def __init__(self, pairSet):
-        self.PairValueRecord = [PairValueRecord(record) for record in pairSet.PairValueRecord]
+    def __init__(self):
+        self.PairValueRecord = []
+
+    def loadFromFontTools(self, pairSet):
+        self.PairValueRecord = [PairValueRecord().loadFromFontTools(record) for record in pairSet.PairValueRecord]
+        return self
 
 
 class PairValueRecord(object):
@@ -189,10 +222,16 @@ class PairValueRecord(object):
 
     __slots__ = ["SecondGlyph", "Value1", "Value2"]
 
-    def __init__(self, pairValueRecord):
+    def __init__(self):
+        self.SecondGlyph = None
+        self.Value1 = None
+        self.Value2 = None
+
+    def loadFromFontTools(self, pairValueRecord):
         self.SecondGlyph = pairValueRecord.SecondGlyph
-        self.Value1 = ValueRecord(pairValueRecord.Value1)
-        self.Value2 = ValueRecord(pairValueRecord.Value2)
+        self.Value1 = ValueRecord().loadFromFontTools(pairValueRecord.Value1)
+        self.Value2 = ValueRecord().loadFromFontTools(pairValueRecord.Value2)
+        return self
 
 
 class GPOSLookupType2Format2(BaseSubTable):
@@ -206,14 +245,24 @@ class GPOSLookupType2Format2(BaseSubTable):
     __slots__ = ["Coverage", "ValueFormat1", "ValueFormat2",
                 "ClassDef1", "ClassDef2", "Class1Record"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType2Format2, self).__init__(subtable, lookup)
-        self.Coverage = Coverage(subtable.Coverage)
+    def __init__(self):
+        super(GPOSLookupType2Format2, self).__init__()
+        self.Coverage = None
+        self.ValueFormat1 = None
+        self.ValueFormat2 = None
+        self.ClassDef1 = None
+        self.ClassDef2 = None
+        self.Class1Record = []
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType2Format2, self).loadFromFontTools(subtable, lookup)
+        self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
         self.ValueFormat1 = subtable.ValueFormat1
         self.ValueFormat2 = subtable.ValueFormat2
-        self.ClassDef1 = ClassDef(subtable.ClassDef1)
-        self.ClassDef2 = ClassDef(subtable.ClassDef2)
-        self.Class1Record = [Class1Record(record) for record in subtable.Class1Record]
+        self.ClassDef1 = ClassDef().loadFromFontTools(subtable.ClassDef1)
+        self.ClassDef2 = ClassDef().loadFromFontTools(subtable.ClassDef2)
+        self.Class1Record = [Class1Record().loadFromFontTools(record) for record in subtable.Class1Record]
+        return self
 
     def process(self, processed, glyphRecords, featureTag):
         performedPos = False
@@ -251,8 +300,12 @@ class Class1Record(object):
 
     __slots__ = ["Class2Record"]
 
-    def __init__(self, class1Record):
-        self.Class2Record = [Class2Record(record) for record in class1Record.Class2Record]
+    def __init__(self):
+        self.Class2Record = []
+
+    def loadFromFontTools(self, class1Record):
+        self.Class2Record = [Class2Record().loadFromFontTools(record) for record in class1Record.Class2Record]
+        return self
 
 
 class Class2Record(object):
@@ -263,9 +316,14 @@ class Class2Record(object):
 
     __slots__ = ["Value1", "Value2"]
 
-    def __init__(self, class2Record):
-        self.Value1 = ValueRecord(class2Record.Value1)
-        self.Value2 = ValueRecord(class2Record.Value2)
+    def __init__(self):
+        self.Value1 = None
+        self.Value2 = None
+
+    def loadFromFontTools(self, class2Record):
+        self.Value1 = ValueRecord().loadFromFontTools(class2Record.Value1)
+        self.Value2 = ValueRecord().loadFromFontTools(class2Record.Value2)
+        return self
 
 
 # -------------
@@ -282,11 +340,17 @@ class GPOSLookupType3(BaseSubTable):
 
     __slots__ = ["Coverage", "EntryExitRecord"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType3, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(GPOSLookupType3, self).__init__()
         self.PosFormat = 1
-        self.Coverage = Coverage(subtable.Coverage)
-        self.EntryExitRecord = [EntryExitRecord(entryExitRecord) for entryExitRecord in subtable.EntryExitRecord]
+        self.Coverage = None
+        self.EntryExitRecord = []
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType3, self).loadFromFontTools(subtable, lookup)
+        self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
+        self.EntryExitRecord = [EntryExitRecord().loadFromFontTools(entryExitRecord) for entryExitRecord in subtable.EntryExitRecord]
+        return self
 
     def process(self, processed, glyphRecords, featureTag):
         performedPos = False
@@ -320,9 +384,14 @@ class EntryExitRecord(object):
 
     __slots__ = ["EntryAnchor", "ExitAnchor"]
 
-    def __init__(self, entryExitRecord):
+    def __init__(self):
+        self.EntryAnchor = None
+        self.ExitAnchor = None
+
+    def loadFromFontTools(self, entryExitRecord):
         self.EntryAnchor = _createAnchor(entryExitRecord.EntryAnchor)
         self.ExitAnchor = _createAnchor(entryExitRecord.ExitAnchor)
+        return self
 
 
 # -------------
@@ -339,12 +408,20 @@ class GPOSLookupType4(BaseSubTable):
 
     __slots__ = ["MarkCoverage", "BaseCoverage", "MarkArray", "BaseArray"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType4, self).__init__(subtable, lookup)
-        self.MarkCoverage = Coverage(subtable.MarkCoverage)
-        self.BaseCoverage = Coverage(subtable.BaseCoverage)
-        self.MarkArray = MarkArray(subtable.MarkArray)
-        self.BaseArray = BaseArray(subtable.BaseArray)
+    def __init__(self):
+        super(GPOSLookupType4, self).__init__()
+        self.MarkCoverage = None
+        self.BaseCoverage = None
+        self.MarkArray = None
+        self.BaseArray = None
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType4, self).loadFromFontTools(subtable, lookup)
+        self.MarkCoverage = Coverage().loadFromFontTools(subtable.MarkCoverage)
+        self.BaseCoverage = Coverage().loadFromFontTools(subtable.BaseCoverage)
+        self.MarkArray = MarkArray().loadFromFontTools(subtable.MarkArray)
+        self.BaseArray = BaseArray().loadFromFontTools(subtable.BaseArray)
+        return self
 
     def process(self, processed, glyphRecords, featureTag):
         performedPos = False
@@ -394,8 +471,12 @@ class MarkArray(object):
 
     __slots__ = ["MarkRecord"]
 
-    def __init__(self, markArray):
-        self.MarkRecord = [MarkRecord(markRecord) for markRecord in markArray.MarkRecord]
+    def __init__(self):
+        self.MarkRecord = []
+
+    def loadFromFontTools(self, markArray):
+        self.MarkRecord = [MarkRecord().loadFromFontTools(markRecord) for markRecord in markArray.MarkRecord]
+        return self
 
 
 class MarkRecord(object):
@@ -406,9 +487,14 @@ class MarkRecord(object):
 
     __slots__ = ["Class", "MarkAnchor"]
 
-    def __init__(self, markRecord):
+    def __init__(self):
+        self.Class = None
+        self.MarkAnchor = None
+
+    def loadFromFontTools(self, markRecord):
         self.Class = markRecord.Class
         self.MarkAnchor = _createAnchor(markRecord.MarkAnchor)
+        return self
 
 
 class BaseArray(object):
@@ -420,8 +506,12 @@ class BaseArray(object):
 
     __slots__ = ["BaseRecord"]
 
-    def __init__(self, baseArray):
-        self.BaseRecord = [BaseRecord(baseRecord) for baseRecord in baseArray.BaseRecord]
+    def __init__(self):
+        self.BaseRecord = []
+
+    def loadFromFontTools(self, baseArray):
+        self.BaseRecord = [BaseRecord().loadFromFontTools(baseRecord) for baseRecord in baseArray.BaseRecord]
+        return self
 
 
 class BaseRecord(object):
@@ -432,17 +522,21 @@ class BaseRecord(object):
 
     __slots__ = ["BaseAnchor"]
 
-    def __init__(self, baseRecord):
+    def __init__(self):
+        self.BaseAnchor = []
+
+    def loadFromFontTools(self, baseRecord):
         self.BaseAnchor = [_createAnchor(anchor) for anchor in baseRecord.BaseAnchor]
+        return self
 
 
 def _createAnchor(anchor):
     if anchor is None:
         return None
     if anchor.Format == 1:
-        return AnchorFormat1(anchor)
+        return AnchorFormat1().loadFromFontTools(anchor)
     elif anchor.Format == 2:
-        return AnchorFormat2(anchor)
+        return AnchorFormat2().loadFromFontTools(anchor)
 
 def _calculateAnchorDifference(anchor1, anchor2):
     xDiff = anchor1.XCoordinate - anchor2.XCoordinate
@@ -458,10 +552,15 @@ class AnchorFormat1(object):
 
     __slots__ = ["AnchorFormat", "XCoordinate", "YCoordinate"]
 
-    def __init__(self, anchor):
+    def __init__(self):
         self.AnchorFormat = 1
+        self.XCoordinate = None
+        self.YCoordinate = None
+
+    def loadFromFontTools(self, anchor):
         self.XCoordinate = anchor.XCoordinate
         self.YCoordinate = anchor.YCoordinate
+        return self
 
 
 class AnchorFormat2(object):
@@ -475,11 +574,17 @@ class AnchorFormat2(object):
 
     __slots__ = ["AnchorFormat", "XCoordinate", "YCoordinate", "AnchorPoint"]
 
-    def __init__(self, anchor):
+    def __init__(self):
         self.AnchorFormat = 2
+        self.XCoordinate = None
+        self.YCoordinate = None
+        self.AnchorPoint = None
+
+    def loadFromFontTools(self, anchor):
         self.XCoordinate = anchor.XCoordinate
         self.YCoordinate = anchor.YCoordinate
         self.AnchorPoint = anchor.AnchorPoint
+        return self
 
 
 # -------------
@@ -499,12 +604,20 @@ class GPOSLookupType5(BaseSubTable):
 
     __slots__ = ["MarkCoverage", "LigatureCoverage", "MarkArray", "LigatureArray"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType5, self).__init__(subtable, lookup)
-        self.MarkCoverage = Coverage(subtable.MarkCoverage)
-        self.LigatureCoverage = Coverage(subtable.LigatureCoverage)
-        self.MarkArray = MarkArray(subtable.MarkArray)
-        self.LigatureArray = LigatureArray(subtable.LigatureArray)
+    def __init__(self):
+        super(GPOSLookupType5, self).__init__()
+        self.MarkCoverage = None
+        self.LigatureCoverage = None
+        self.MarkArray = None
+        self.LigatureArray = None
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType5, self).loadFromFontTools(subtable, lookup)
+        self.MarkCoverage = Coverage().loadFromFontTools(subtable.MarkCoverage)
+        self.LigatureCoverage = Coverage().loadFromFontTools(subtable.LigatureCoverage)
+        self.MarkArray = MarkArray().loadFromFontTools(subtable.MarkArray)
+        self.LigatureArray = LigatureArray().loadFromFontTools(subtable.LigatureArray)
+        return self
 
     def process(self, processed, glyphRecords, featureTag):
         performedPos = False
@@ -558,8 +671,12 @@ class LigatureArray(object):
 
     __slots__ = ["LigatureAttach"]
 
-    def __init__(self, ligatureArray):
-        self.LigatureAttach = [LigatureAttach(ligatureAttach) for ligatureAttach in ligatureArray.LigatureAttach]
+    def __init__(self):
+        self.LigatureAttach = []
+
+    def loadFromFontTools(self, ligatureArray):
+        self.LigatureAttach = [LigatureAttach().loadFromFontTools(ligatureAttach) for ligatureAttach in ligatureArray.LigatureAttach]
+        return self
 
 
 class LigatureAttach(object):
@@ -571,8 +688,12 @@ class LigatureAttach(object):
 
     __slots__ = ["ComponentRecord"]
 
-    def __init__(self, ligatureAttach):
-        self.ComponentRecord = [ComponentRecord(componentRecord) for componentRecord in ligatureAttach.ComponentRecord]
+    def __init__(self):
+        self.ComponentRecord = []
+
+    def loadFromFontTools(self, ligatureAttach):
+        self.ComponentRecord = [ComponentRecord().loadFromFontTools(componentRecord) for componentRecord in ligatureAttach.ComponentRecord]
+        return self
 
 
 class ComponentRecord(object):
@@ -585,8 +706,12 @@ class ComponentRecord(object):
 
     __slots__ = ["LigatureAnchor"]
 
-    def __init__(self, componentRecord):
+    def __init__(self):
+        self.LigatureAnchor = []
+
+    def loadFromFontTools(self, componentRecord):
         self.LigatureAnchor = [_createAnchor(anchor) for anchor in componentRecord.LigatureAnchor]
+        return self
 
 
 # -------------
@@ -606,12 +731,20 @@ class GPOSLookupType6(BaseSubTable):
 
     __slots__ = ["Mark1Coverage", "Mark1Array", "Mark2Coverage", "Mark2Array"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType6, self).__init__(subtable, lookup)
-        self.Mark1Coverage = Coverage(subtable.Mark1Coverage)
-        self.Mark2Coverage = Coverage(subtable.Mark2Coverage)
-        self.Mark1Array = MarkArray(subtable.Mark1Array)
-        self.Mark2Array = Mark2Array(subtable.Mark2Array)
+    def __init__(self):
+        super(GPOSLookupType6, self).__init__()
+        self.Mark1Coverage = None
+        self.Mark2Coverage = None
+        self.Mark1Array = None
+        self.Mark2Array = None
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType6, self).loadFromFontTools(subtable, lookup)
+        self.Mark1Coverage = Coverage().loadFromFontTools(subtable.Mark1Coverage)
+        self.Mark2Coverage = Coverage().loadFromFontTools(subtable.Mark2Coverage)
+        self.Mark1Array = MarkArray().loadFromFontTools(subtable.Mark1Array)
+        self.Mark2Array = Mark2Array().loadFromFontTools(subtable.Mark2Array)
+        return self
 
     def process(self, processed, glyphRecords, featureTag):
         performedPos = False
@@ -659,8 +792,12 @@ class Mark2Array(object):
 
     __slots__ = ["Mark2Record"]
 
-    def __init__(self, mark2Array):
-        self.Mark2Record = [Mark2Record(mark2Record) for mark2Record in mark2Array.Mark2Record]
+    def __init__(self):
+        self.Mark2Record = []
+
+    def loadFromFontTools(self, mark2Array):
+        self.Mark2Record = [Mark2Record().loadFromFontTools(mark2Record) for mark2Record in mark2Array.Mark2Record]
+        return self
 
 
 class Mark2Record(object):
@@ -671,8 +808,12 @@ class Mark2Record(object):
 
     __slots__ = ["Mark2Anchor"]
 
-    def __init__(self, mark2Record):
+    def __init__(self):
+        self.Mark2Anchor = []
+
+    def loadFromFontTools(self, mark2Record):
         self.Mark2Anchor = [_createAnchor(anchor) for anchor in mark2Record.Mark2Anchor]
+        return self
 
 
 # -------------
@@ -695,12 +836,19 @@ class GPOSLookupType7Format1(BaseContextFormat1SubTable):
 
     __slots__ = ["Coverage", "PosRuleSet", "_RuleSet"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType7Format1, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(GPOSLookupType7Format1, self).__init__()
         self.PosFormat = 1
-        self.Coverage = Coverage(subtable.Coverage)
-        self.PosRuleSet = [PosRuleSet(posRuleSet) for posRuleSet in subtable.PosRuleSet]
+        self.Coverage = None
+        self.PosRuleSet = []
+        self._RuleSet = None
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType7Format1, self).loadFromFontTools(subtable, lookup)
+        self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
+        self.PosRuleSet = [PosRuleSet().loadFromFontTools(posRuleSet) for posRuleSet in subtable.PosRuleSet]
         self._RuleSet = self.PosRuleSet
+        return self
 
 
 class PosRuleSet(object):
@@ -718,9 +866,14 @@ class PosRuleSet(object):
 
     __slots__ = ["PosRule", "_Rule"]
 
-    def __init__(self, posRuleSet):
-        self.PosRule = [PosRule(posRule) for posRule in posRuleSet.PosRule]
+    def __init__(self):
+        self.PosRule = []
+        self._Rule = None
+
+    def loadFromFontTools(self, posRuleSet):
+        self.PosRule = [PosRule().loadFromFontTools(posRule) for posRule in posRuleSet.PosRule]
         self._Rule = self.PosRule
+        return self
 
 
 class PosRule(object):
@@ -738,13 +891,22 @@ class PosRule(object):
 
     __slots__ = ["Input", "GlyphCount", "PosCount", "PosLookupRecord", "_ActionCount", "_ActionLookupRecord"]
 
-    def __init__(self, posRule):
+    def __init__(self):
+        self.Input = []
+        self.GlyphCount = 0
+        self.PosCount = 0
+        self.PosLookupRecord = []
+        self._ActionCount = self.PosCount
+        self._ActionLookupRecord = self.PosLookupRecord
+
+    def loadFromFontTools(self, posRule):
         self.Input = list(posRule.Input)
         self.GlyphCount = posRule.GlyphCount
         self.PosCount = posRule.PosCount
-        self.PosLookupRecord = [PosLookupRecord(record) for record in posRule.PosLookupRecord]
+        self.PosLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in posRule.PosLookupRecord]
         self._ActionCount = self.PosCount
         self._ActionLookupRecord = self.PosLookupRecord
+        return self
 
 
 class GPOSLookupType7Format2(BaseContextFormat2SubTable):
@@ -756,18 +918,27 @@ class GPOSLookupType7Format2(BaseContextFormat2SubTable):
 
     __slots__ = ["Coverage", "ClassDef", "PosClassSet", "_ClassSet"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType7Format2, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(GPOSLookupType7Format2, self).__init__()
         self.PosFormat = 2
-        self.Coverage = Coverage(subtable.Coverage)
-        self.ClassDef = ClassDef(subtable.ClassDef)
+        self.Coverage = None
+        self.ClassDef = None
+        self.PosClassSet = []
+        self._ClassSet = self.PosClassSet
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType7Format2, self).loadFromFontTools(subtable, lookup)
+        self.PosFormat = 2
+        self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
+        self.ClassDef = ClassDef().loadFromFontTools(subtable.ClassDef)
         self.PosClassSet = []
         for posClassSet in subtable.PosClassSet:
             if posClassSet is None:
                 self.PosClassSet.append(None)
             else:
-                self.PosClassSet.append(PosClassSet(posClassSet))
+                self.PosClassSet.append(PosClassSet().loadFromFontTools(posClassSet))
         self._ClassSet = self.PosClassSet
+        return self
 
 
 class PosClassSet(object):
@@ -779,9 +950,14 @@ class PosClassSet(object):
 
     __slots__ = ["PosClassRule", "_ClassRule"]
 
-    def __init__(self, posClassSet):
-        self.PosClassRule = [PosClassRule(posClassRule) for posClassRule in posClassSet.PosClassRule]
+    def __init__(self):
+        self.PosClassRule = []
+        self._ClassRule = None
+
+    def loadFromFontTools(self, posClassSet):
+        self.PosClassRule = [PosClassRule().loadFromFontTools(posClassRule) for posClassRule in posClassSet.PosClassRule]
         self._ClassRule = self.PosClassRule
+        return self
 
 
 class PosClassRule(object):
@@ -799,13 +975,22 @@ class PosClassRule(object):
 
     __slots__ = ["Class", "GlyphCount", "PosCount", "PosLookupRecord", "_ActionCount", "_ActionLookupRecord"]
 
-    def __init__(self, posClassRule):
+    def __init__(self):
+        self.Class = []
+        self.GlyphCount = 0
+        self.PosCount = 0
+        self.PosLookupRecord = []
+        self._ActionCount = 0
+        self._ActionLookupRecord = None
+
+    def loadFromFontTools(self, posClassRule):
         self.Class = list(posClassRule.Class)
         self.GlyphCount = posClassRule.GlyphCount
         self.PosCount = posClassRule.PosCount
-        self.PosLookupRecord = [PosLookupRecord(record) for record in posClassRule.PosLookupRecord]
+        self.PosLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in posClassRule.PosLookupRecord]
         self._ActionCount = self.PosCount
         self._ActionLookupRecord = self.PosLookupRecord
+        return self
 
 
 class GPOSLookupType7Format3(BaseContextFormat3SubTable):
@@ -821,15 +1006,25 @@ class GPOSLookupType7Format3(BaseContextFormat3SubTable):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType7Format3, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(GPOSLookupType7Format3, self).__init__()
         self.PosFormat = 3
-        self.Coverage = [Coverage(coverage) for coverage in subtable.Coverage]
-        self.GlyphCount = subtable.GlyphCount
-        self.PosCount = subtable.PosCount
-        self.PosLookupRecord = [PosLookupRecord(record) for record in subtable.PosLookupRecord]
+        self.Coverage = []
+        self.GlyphCount = 0
+        self.PosCount = 0
+        self.PosLookupRecord = []
         self._ActionCount = self.PosCount
         self._ActionLookupRecord = self.PosLookupRecord
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType7Format3, self).loadFromFontTools(subtable, lookup)
+        self.Coverage = [Coverage().loadFromFontTools(coverage) for coverage in subtable.Coverage]
+        self.GlyphCount = subtable.GlyphCount
+        self.PosCount = subtable.PosCount
+        self.PosLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in subtable.PosLookupRecord]
+        self._ActionCount = self.PosCount
+        self._ActionLookupRecord = self.PosLookupRecord
+        return self
 
 
 # -------------
@@ -852,12 +1047,19 @@ class GPOSLookupType8Format1(BaseChainingContextFormat1SubTable):
 
     __slots__ = ["Coverage", "ChainPosRuleSet", "_ChainRuleSet"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType8Format1, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(GPOSLookupType8Format1, self).__init__()
         self.PosFormat = 1
-        self.Coverage = Coverage(subtable.Coverage)
-        self.ChainPosRuleSet = [ChainPosRuleSet(chainPosRuleSet) for chainPosRuleSet in subtable.ChainPosRuleSet]
+        self.Coverage = None
+        self.ChainPosRuleSet = []
         self._ChainRuleSet = self.ChainPosRuleSet
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType8Format1, self).loadFromFontTools(subtable, lookup)
+        self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
+        self.ChainPosRuleSet = [ChainPosRuleSet().loadFromFontTools(chainPosRuleSet) for chainPosRuleSet in subtable.ChainPosRuleSet]
+        self._ChainRuleSet = self.ChainPosRuleSet
+        return self
 
 
 class ChainPosRuleSet(object):
@@ -875,9 +1077,14 @@ class ChainPosRuleSet(object):
 
     __slots__ = ["ChainPosRule", "_ChainRule"]
 
-    def __init__(self, chainPosRuleSet):
-        self.ChainPosRule = [ChainPosRule(chainPosRule) for chainPosRule in chainPosRuleSet.ChainPosRule]
+    def __init__(self):
+        self.ChainPosRule = None
         self._ChainRule = self.ChainPosRule
+
+    def loadFromFontTools(self, chainPosRuleSet):
+        self.ChainPosRule = [ChainPosRule().loadFromFontTools(chainPosRule) for chainPosRule in chainPosRuleSet.ChainPosRule]
+        self._ChainRule = self.ChainPosRule
+        return self
 
 
 class ChainPosRule(object):
@@ -898,7 +1105,19 @@ class ChainPosRule(object):
                 "PosCount", "PosLookupRecord",
                 "_ActionCount", "_ActionLookupRecord"]
 
-    def __init__(self, chainPosRule):
+    def __init__(self):
+        self.BacktrackGlyphCount = 0
+        self.Backtrack = []
+        self.InputGlyphCount = 0
+        self.Input = []
+        self.LookAheadGlyphCount = 0
+        self.LookAhead = []
+        self.PosCount = 0
+        self.PosLookupRecord = []
+        self._ActionCount = self.PosCount
+        self._ActionLookupRecord = self.PosLookupRecord
+
+    def loadFromFontTools(self, chainPosRule):
         self.BacktrackGlyphCount = chainPosRule.BacktrackGlyphCount
         self.Backtrack = list(chainPosRule.Backtrack)
         self.InputGlyphCount = chainPosRule.InputGlyphCount
@@ -906,9 +1125,10 @@ class ChainPosRule(object):
         self.LookAheadGlyphCount = chainPosRule.LookAheadGlyphCount
         self.LookAhead = list(chainPosRule.LookAhead)
         self.PosCount = chainPosRule.PosCount
-        self.PosLookupRecord = [PosLookupRecord(record) for record in chainPosRule.PosLookupRecord]
+        self.PosLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in chainPosRule.PosLookupRecord]
         self._ActionCount = self.PosCount
         self._ActionLookupRecord = self.PosLookupRecord
+        return self
 
 
 class GPOSLookupType8Format2(BaseChainingContextFormat2SubTable):
@@ -927,20 +1147,30 @@ class GPOSLookupType8Format2(BaseChainingContextFormat2SubTable):
     __slots__ = ["Coverage", "BacktrackClassDef", "InputClassDef",
         "LookAheadClassDef", "ChainPosClassSet", "_ChainClassSet"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType8Format2, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(GPOSLookupType8Format2, self).__init__()
         self.PosFormat = 2
-        self.Coverage = Coverage(subtable.Coverage)
-        self.BacktrackClassDef = ClassDef(subtable.BacktrackClassDef)
-        self.InputClassDef = ClassDef(subtable.InputClassDef)
-        self.LookAheadClassDef = ClassDef(subtable.LookAheadClassDef)
+        self.Coverage = None
+        self.BacktrackClassDef = None
+        self.InputClassDef = None
+        self.LookAheadClassDef = None
+        self.ChainPosClassSet = []
+        self._ChainClassSet = self.ChainPosClassSet
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType8Format2, self).loadFromFontTools(subtable, lookup)
+        self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
+        self.BacktrackClassDef = ClassDef().loadFromFontTools(subtable.BacktrackClassDef)
+        self.InputClassDef = ClassDef().loadFromFontTools(subtable.InputClassDef)
+        self.LookAheadClassDef = ClassDef().loadFromFontTools(subtable.LookAheadClassDef)
         self.ChainPosClassSet = []
         for chainPosClassSet in subtable.ChainPosClassSet:
             if chainPosClassSet is None:
                 self.ChainPosClassSet.append(None)
             else:
-                self.ChainPosClassSet.append(ChainPosClassSet(chainPosClassSet))
+                self.ChainPosClassSet.append(ChainPosClassSet().loadFromFontTools(chainPosClassSet))
         self._ChainClassSet = self.ChainPosClassSet
+        return self
 
 
 class ChainPosClassSet(object):
@@ -958,9 +1188,14 @@ class ChainPosClassSet(object):
 
     __slots__ = ["ChainPosClassRule", "_ChainClassRule"]
 
-    def __init__(self, chainPosClassSet):
-        self.ChainPosClassRule = [ChainPosClassRule(chainPosClassRule) for chainPosClassRule in chainPosClassSet.ChainPosClassRule]
+    def __init__(self):
+        self.ChainPosClassRule = []
         self._ChainClassRule = self.ChainPosClassRule
+
+    def loadFromFontTools(self, chainPosClassSet):
+        self.ChainPosClassRule = [ChainPosClassRule().loadFromFontTools(chainPosClassRule) for chainPosClassRule in chainPosClassSet.ChainPosClassRule]
+        self._ChainClassRule = self.ChainPosClassRule
+        return self
 
 
 class ChainPosClassRule(object):
@@ -982,7 +1217,19 @@ class ChainPosClassRule(object):
         "PosCount", "PosLookupRecord",
         "_ActionCount", "_ActionLookupRecord"]
 
-    def __init__(self, chainPosClassRule):
+    def __init__(self):
+        self.BacktrackGlyphCount = 0
+        self.Backtrack = []
+        self.InputGlyphCount = 0
+        self.Input = []
+        self.LookAheadGlyphCount = 0
+        self.LookAhead = []
+        self.PosCount = 0
+        self.PosLookupRecord = []
+        self._ActionCount = self.PosCount
+        self._ActionLookupRecord = self.PosLookupRecord
+
+    def loadFromFontTools(self, chainPosClassRule):
         self.BacktrackGlyphCount = chainPosClassRule.BacktrackGlyphCount
         self.Backtrack = list(chainPosClassRule.Backtrack)
         self.InputGlyphCount = chainPosClassRule.InputGlyphCount
@@ -990,9 +1237,10 @@ class ChainPosClassRule(object):
         self.LookAheadGlyphCount = chainPosClassRule.LookAheadGlyphCount
         self.LookAhead = list(chainPosClassRule.LookAhead)
         self.PosCount = chainPosClassRule.PosCount
-        self.PosLookupRecord = [PosLookupRecord(record) for record in chainPosClassRule.PosLookupRecord]
+        self.PosLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in chainPosClassRule.PosLookupRecord]
         self._ActionCount = self.PosCount
         self._ActionLookupRecord = self.PosLookupRecord
+        return self
 
 
 class GPOSLookupType8Format3(BaseChainingContextFormat3SubTable):
@@ -1012,10 +1260,16 @@ class GPOSLookupType8Format3(BaseChainingContextFormat3SubTable):
                 "LookaheadGlyphCount", "LookaheadCoverage",
                 "_ActionCount", "_ActionLookupRecord"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType8Format3, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(GPOSLookupType8Format3, self).__init__()
+        self._ActionCount = 0
+        self._ActionLookupRecord = []
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType8Format3, self).loadFromFontTools(subtable, lookup)
         self._ActionCount = subtable.PosCount
-        self._ActionLookupRecord = [PosLookupRecord(record) for record in subtable.PosLookupRecord]
+        self._ActionLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in subtable.PosLookupRecord]
+        return self
 
 
 class PosLookupRecord(BaseLookupRecord): pass
@@ -1037,8 +1291,13 @@ class GPOSLookupType9(BaseSubTable):
 
     __slots__ = ["ExtensionLookupType", "ExtSubTable"] + globalPositionSubTableSlots
 
-    def __init__(self, subtable, lookup):
-        super(GPOSLookupType9, self).__init__(subtable, lookup)
+    def __init__(self):
+        super(GPOSLookupType9, self).__init__()
+        self.ExtensionLookupType = None
+        self.ExtSubTable = None
+
+    def loadFromFontTools(self, subtable, lookup):
+        super(GPOSLookupType9, self).loadFromFontTools(subtable, lookup)
         self.ExtensionLookupType = subtable.ExtensionLookupType
         lookupType = self.ExtensionLookupType
         if lookupType == 1:
@@ -1059,7 +1318,8 @@ class GPOSLookupType9(BaseSubTable):
             cls = (GPOSLookupType8Format1, GPOSLookupType8Format2, GPOSLookupType8Format3)[subtable.ExtSubTable.Format-1]
         elif lookupType == 9:
             cls = GPOSLookupType9
-        self.ExtSubTable = cls(subtable.ExtSubTable, lookup)
+        self.ExtSubTable = cls().loadFromFontTools(subtable.ExtSubTable, lookup)
+        return self
 
     def process(self, processed, glyphRecords, featureTag):
         return self.ExtSubTable.process(processed, glyphRecords, featureTag)

@@ -22,9 +22,14 @@ class ClassDef(object):
 
     __slots__ = ["_map", "ClassFormat", "Glyphs"]
 
-    def __init__(self, classDef):
+    def __init__(self):
+        self.ClassFormat = None
+        self._map = None
+
+    def loadFromFontTools(self, classDef):
         self.ClassFormat = classDef.Format
         self._map = dict(classDef.classDefs)
+        return self
 
     def __getitem__(self, glyphName):
         return self._map.get(glyphName, 0)
