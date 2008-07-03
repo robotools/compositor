@@ -69,30 +69,46 @@ class BaseLookup(object):
 
 class LookupFlag(object):
 
-    __slots__ = ["_gdef", "_flag", "_haveIgnore",
-                "IgnoreBaseGlyphs", "IgnoreLigatures", "IgnoreMarks",
-                "RightToLeft", "MarkAttachmentType"]
+    __slots__ = ["_gdef", "_flag"]
 
     def __init__(self):
         self._gdef = None
         self._flag = None
-        self._haveIgnore = False
-        self.RightToLeft = False
-        self.IgnoreBaseGlyphs = False
-        self.IgnoreLigatures = False
-        self.IgnoreMarks = False
-        self.MarkAttachmentType = False
 
     def loadFromFontTools(self, lookupFlag, gdef):
         self._gdef = gdef
         self._flag = lookupFlag
-        self._haveIgnore = lookupFlag & 0x0E
-        self.RightToLeft = lookupFlag & 0x0001
-        self.IgnoreBaseGlyphs = lookupFlag & 0x0002
-        self.IgnoreLigatures = lookupFlag & 0x0004
-        self.IgnoreMarks = lookupFlag & 0x0008
-        self.MarkAttachmentType = lookupFlag & 0xFF00
         return self
+
+    def _get_haveIgnore(self):
+        return bool(self._flag & 0x0E)
+
+    _haveIgnore = property(_get_haveIgnore)
+
+    def _get_RightToLeft(self):
+        return bool(self._flag & 0x0001)
+
+    RightToLeft = property(_get_RightToLeft)
+
+    def _get_IgnoreBaseGlyphs(self):
+        return bool(self._flag & 0x0002)
+
+    IgnoreBaseGlyphs = property(_get_IgnoreBaseGlyphs)
+
+    def _get_IgnoreLigatures(self):
+        return bool(self._flag & 0x0004)
+
+    IgnoreLigatures = property(_get_IgnoreLigatures)
+
+    def _get_IgnoreMarks(self):
+        return bool(self._flag & 0x0008)
+
+    IgnoreMarks = property(_get_IgnoreMarks)
+
+    def _get_MarkAttachmentType(self):
+        return bool(self._flag & 0xFF00)
+
+    MarkAttachmentType = property(_get_MarkAttachmentType)
 
     def coversGlyph(self, glyphName):
         gdef = self._gdef
