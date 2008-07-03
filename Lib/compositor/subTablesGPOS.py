@@ -834,21 +834,24 @@ class GPOSLookupType7Format1(BaseContextFormat1SubTable):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["Coverage", "PosRuleSet", "_RuleSet"] + globalPositionSubTableSlots
+    __slots__ = ["Coverage", "PosRuleSet"] + globalPositionSubTableSlots
 
     def __init__(self):
         super(GPOSLookupType7Format1, self).__init__()
         self.PosFormat = 1
         self.Coverage = None
         self.PosRuleSet = []
-        self._RuleSet = None
 
     def loadFromFontTools(self, subtable, lookup):
         super(GPOSLookupType7Format1, self).loadFromFontTools(subtable, lookup)
         self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
         self.PosRuleSet = [PosRuleSet().loadFromFontTools(posRuleSet) for posRuleSet in subtable.PosRuleSet]
-        self._RuleSet = self.PosRuleSet
         return self
+
+    def _get_RuleSet(self):
+        return self.PosRuleSet
+
+    _RuleSet = property(_get_RuleSet)
 
 
 class PosRuleSet(object):
@@ -864,16 +867,19 @@ class PosRuleSet(object):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["PosRule", "_Rule"]
+    __slots__ = ["PosRule"]
 
     def __init__(self):
         self.PosRule = []
-        self._Rule = None
 
     def loadFromFontTools(self, posRuleSet):
         self.PosRule = [PosRule().loadFromFontTools(posRule) for posRule in posRuleSet.PosRule]
-        self._Rule = self.PosRule
         return self
+
+    def _get_Rule(self):
+        return self.PosRule
+
+    _Rule = property(_get_Rule)
 
 
 class PosRule(object):
@@ -889,24 +895,30 @@ class PosRule(object):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["Input", "GlyphCount", "PosCount", "PosLookupRecord", "_ActionCount", "_ActionLookupRecord"]
+    __slots__ = ["Input", "GlyphCount", "PosCount", "PosLookupRecord"]
 
     def __init__(self):
         self.Input = []
         self.GlyphCount = 0
         self.PosCount = 0
         self.PosLookupRecord = []
-        self._ActionCount = self.PosCount
-        self._ActionLookupRecord = self.PosLookupRecord
 
     def loadFromFontTools(self, posRule):
         self.Input = list(posRule.Input)
         self.GlyphCount = posRule.GlyphCount
         self.PosCount = posRule.PosCount
         self.PosLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in posRule.PosLookupRecord]
-        self._ActionCount = self.PosCount
-        self._ActionLookupRecord = self.PosLookupRecord
         return self
+
+    def _get_ActionCount(self):
+        return self.PosCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.PosLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 class GPOSLookupType7Format2(BaseContextFormat2SubTable):
@@ -916,7 +928,7 @@ class GPOSLookupType7Format2(BaseContextFormat2SubTable):
     - PosClassRuleCnt attribute is not implemented.
     """
 
-    __slots__ = ["Coverage", "ClassDef", "PosClassSet", "_ClassSet"] + globalPositionSubTableSlots
+    __slots__ = ["Coverage", "ClassDef", "PosClassSet"] + globalPositionSubTableSlots
 
     def __init__(self):
         super(GPOSLookupType7Format2, self).__init__()
@@ -924,7 +936,6 @@ class GPOSLookupType7Format2(BaseContextFormat2SubTable):
         self.Coverage = None
         self.ClassDef = None
         self.PosClassSet = []
-        self._ClassSet = self.PosClassSet
 
     def loadFromFontTools(self, subtable, lookup):
         super(GPOSLookupType7Format2, self).loadFromFontTools(subtable, lookup)
@@ -937,8 +948,12 @@ class GPOSLookupType7Format2(BaseContextFormat2SubTable):
                 self.PosClassSet.append(None)
             else:
                 self.PosClassSet.append(PosClassSet().loadFromFontTools(posClassSet))
-        self._ClassSet = self.PosClassSet
         return self
+
+    def _get_ClassSet(self):
+        return self.PosClassSet
+
+    _ClassSet = property(_get_ClassSet)
 
 
 class PosClassSet(object):
@@ -948,16 +963,20 @@ class PosClassSet(object):
     - PosClassRuleCnt attribute is not implemented.
     """
 
-    __slots__ = ["PosClassRule", "_ClassRule"]
+    __slots__ = ["PosClassRule"]
 
     def __init__(self):
         self.PosClassRule = []
-        self._ClassRule = None
 
     def loadFromFontTools(self, posClassSet):
         self.PosClassRule = [PosClassRule().loadFromFontTools(posClassRule) for posClassRule in posClassSet.PosClassRule]
-        self._ClassRule = self.PosClassRule
         return self
+
+    def _get_ClassRule(self):
+        return self.PosClassRule
+
+    _ClassRule = property(_get_ClassRule)
+
 
 
 class PosClassRule(object):
@@ -973,24 +992,30 @@ class PosClassRule(object):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["Class", "GlyphCount", "PosCount", "PosLookupRecord", "_ActionCount", "_ActionLookupRecord"]
+    __slots__ = ["Class", "GlyphCount", "PosCount", "PosLookupRecord"]
 
     def __init__(self):
         self.Class = []
         self.GlyphCount = 0
         self.PosCount = 0
         self.PosLookupRecord = []
-        self._ActionCount = 0
-        self._ActionLookupRecord = None
 
     def loadFromFontTools(self, posClassRule):
         self.Class = list(posClassRule.Class)
         self.GlyphCount = posClassRule.GlyphCount
         self.PosCount = posClassRule.PosCount
         self.PosLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in posClassRule.PosLookupRecord]
-        self._ActionCount = self.PosCount
-        self._ActionLookupRecord = self.PosLookupRecord
         return self
+
+    def _get_ActionCount(self):
+        return self.PosCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.PosLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 class GPOSLookupType7Format3(BaseContextFormat3SubTable):
@@ -1013,8 +1038,6 @@ class GPOSLookupType7Format3(BaseContextFormat3SubTable):
         self.GlyphCount = 0
         self.PosCount = 0
         self.PosLookupRecord = []
-        self._ActionCount = self.PosCount
-        self._ActionLookupRecord = self.PosLookupRecord
 
     def loadFromFontTools(self, subtable, lookup):
         super(GPOSLookupType7Format3, self).loadFromFontTools(subtable, lookup)
@@ -1022,9 +1045,17 @@ class GPOSLookupType7Format3(BaseContextFormat3SubTable):
         self.GlyphCount = subtable.GlyphCount
         self.PosCount = subtable.PosCount
         self.PosLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in subtable.PosLookupRecord]
-        self._ActionCount = self.PosCount
-        self._ActionLookupRecord = self.PosLookupRecord
         return self
+
+    def _get_ActionCount(self):
+        return self.PosCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.PosLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 # -------------
@@ -1045,21 +1076,25 @@ class GPOSLookupType8Format1(BaseChainingContextFormat1SubTable):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["Coverage", "ChainPosRuleSet", "_ChainRuleSet"] + globalPositionSubTableSlots
+    __slots__ = ["Coverage", "ChainPosRuleSet"] + globalPositionSubTableSlots
 
     def __init__(self):
         super(GPOSLookupType8Format1, self).__init__()
         self.PosFormat = 1
         self.Coverage = None
         self.ChainPosRuleSet = []
-        self._ChainRuleSet = self.ChainPosRuleSet
 
     def loadFromFontTools(self, subtable, lookup):
         super(GPOSLookupType8Format1, self).loadFromFontTools(subtable, lookup)
         self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
         self.ChainPosRuleSet = [ChainPosRuleSet().loadFromFontTools(chainPosRuleSet) for chainPosRuleSet in subtable.ChainPosRuleSet]
-        self._ChainRuleSet = self.ChainPosRuleSet
         return self
+
+    def _get_ChainRuleSet(self):
+        return self.ChainPosRuleSet
+
+    _ChainRuleSet = property(_get_ChainRuleSet)
+
 
 
 class ChainPosRuleSet(object):
@@ -1075,16 +1110,19 @@ class ChainPosRuleSet(object):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["ChainPosRule", "_ChainRule"]
+    __slots__ = ["ChainPosRule"]
 
     def __init__(self):
         self.ChainPosRule = None
-        self._ChainRule = self.ChainPosRule
 
     def loadFromFontTools(self, chainPosRuleSet):
         self.ChainPosRule = [ChainPosRule().loadFromFontTools(chainPosRule) for chainPosRule in chainPosRuleSet.ChainPosRule]
-        self._ChainRule = self.ChainPosRule
         return self
+
+    def _get_ChainRule(self):
+        return self.ChainPosRule
+
+    _ChainRule = property(_get_ChainRule)
 
 
 class ChainPosRule(object):
@@ -1102,8 +1140,7 @@ class ChainPosRule(object):
 
     __slots__ = ["BacktrackGlyphCount", "Backtrack", "InputGlyphCount", "Input",
                 "LookAheadGlyphCount", "LookAhead",
-                "PosCount", "PosLookupRecord",
-                "_ActionCount", "_ActionLookupRecord"]
+                "PosCount", "PosLookupRecord",]
 
     def __init__(self):
         self.BacktrackGlyphCount = 0
@@ -1114,8 +1151,6 @@ class ChainPosRule(object):
         self.LookAhead = []
         self.PosCount = 0
         self.PosLookupRecord = []
-        self._ActionCount = self.PosCount
-        self._ActionLookupRecord = self.PosLookupRecord
 
     def loadFromFontTools(self, chainPosRule):
         self.BacktrackGlyphCount = chainPosRule.BacktrackGlyphCount
@@ -1126,9 +1161,17 @@ class ChainPosRule(object):
         self.LookAhead = list(chainPosRule.LookAhead)
         self.PosCount = chainPosRule.PosCount
         self.PosLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in chainPosRule.PosLookupRecord]
-        self._ActionCount = self.PosCount
-        self._ActionLookupRecord = self.PosLookupRecord
         return self
+
+    def _get_ActionCount(self):
+        return self.PosCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.PosLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 class GPOSLookupType8Format2(BaseChainingContextFormat2SubTable):
@@ -1145,7 +1188,7 @@ class GPOSLookupType8Format2(BaseChainingContextFormat2SubTable):
     """
 
     __slots__ = ["Coverage", "BacktrackClassDef", "InputClassDef",
-        "LookAheadClassDef", "ChainPosClassSet", "_ChainClassSet"] + globalPositionSubTableSlots
+        "LookAheadClassDef", "ChainPosClassSet"] + globalPositionSubTableSlots
 
     def __init__(self):
         super(GPOSLookupType8Format2, self).__init__()
@@ -1155,7 +1198,6 @@ class GPOSLookupType8Format2(BaseChainingContextFormat2SubTable):
         self.InputClassDef = None
         self.LookAheadClassDef = None
         self.ChainPosClassSet = []
-        self._ChainClassSet = self.ChainPosClassSet
 
     def loadFromFontTools(self, subtable, lookup):
         super(GPOSLookupType8Format2, self).loadFromFontTools(subtable, lookup)
@@ -1169,8 +1211,12 @@ class GPOSLookupType8Format2(BaseChainingContextFormat2SubTable):
                 self.ChainPosClassSet.append(None)
             else:
                 self.ChainPosClassSet.append(ChainPosClassSet().loadFromFontTools(chainPosClassSet))
-        self._ChainClassSet = self.ChainPosClassSet
         return self
+
+    def _get_ChainClassSet(self):
+        return self.ChainPosClassSet
+
+    _ChainClassSet = property(_get_ChainClassSet)
 
 
 class ChainPosClassSet(object):
@@ -1186,16 +1232,19 @@ class ChainPosClassSet(object):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["ChainPosClassRule", "_ChainClassRule"]
+    __slots__ = ["ChainPosClassRule"]
 
     def __init__(self):
         self.ChainPosClassRule = []
-        self._ChainClassRule = self.ChainPosClassRule
 
     def loadFromFontTools(self, chainPosClassSet):
         self.ChainPosClassRule = [ChainPosClassRule().loadFromFontTools(chainPosClassRule) for chainPosClassRule in chainPosClassSet.ChainPosClassRule]
-        self._ChainClassRule = self.ChainPosClassRule
         return self
+
+    def _get_ChainClassRule(self):
+        return self.ChainPosClassRule
+
+    _ChainClassRule = property(_get_ChainClassRule)
 
 
 class ChainPosClassRule(object):
@@ -1214,8 +1263,7 @@ class ChainPosClassRule(object):
     __slots__ = ["BacktrackGlyphCount", "Backtrack",
         "InputGlyphCount", "Input",
         "LookAheadGlyphCount", "LookAhead",
-        "PosCount", "PosLookupRecord",
-        "_ActionCount", "_ActionLookupRecord"]
+        "PosCount", "PosLookupRecord"]
 
     def __init__(self):
         self.BacktrackGlyphCount = 0
@@ -1226,8 +1274,6 @@ class ChainPosClassRule(object):
         self.LookAhead = []
         self.PosCount = 0
         self.PosLookupRecord = []
-        self._ActionCount = self.PosCount
-        self._ActionLookupRecord = self.PosLookupRecord
 
     def loadFromFontTools(self, chainPosClassRule):
         self.BacktrackGlyphCount = chainPosClassRule.BacktrackGlyphCount
@@ -1238,9 +1284,17 @@ class ChainPosClassRule(object):
         self.LookAhead = list(chainPosClassRule.LookAhead)
         self.PosCount = chainPosClassRule.PosCount
         self.PosLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in chainPosClassRule.PosLookupRecord]
-        self._ActionCount = self.PosCount
-        self._ActionLookupRecord = self.PosLookupRecord
         return self
+
+    def _get_ActionCount(self):
+        return self.PosCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.PosLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 class GPOSLookupType8Format3(BaseChainingContextFormat3SubTable):
@@ -1258,18 +1312,28 @@ class GPOSLookupType8Format3(BaseChainingContextFormat3SubTable):
 
     __slots__ = ["BacktrackGlyphCount", "BacktrackCoverage", "InputGlyphCount", "InputCoverage"
                 "LookaheadGlyphCount", "LookaheadCoverage",
-                "_ActionCount", "_ActionLookupRecord"] + globalPositionSubTableSlots
+                "PosCount", "PosLookupRecord"] + globalPositionSubTableSlots
 
     def __init__(self):
         super(GPOSLookupType8Format3, self).__init__()
-        self._ActionCount = 0
-        self._ActionLookupRecord = []
+        self.PosCount = 0
+        self.PosLookupRecord = []
 
     def loadFromFontTools(self, subtable, lookup):
         super(GPOSLookupType8Format3, self).loadFromFontTools(subtable, lookup)
-        self._ActionCount = subtable.PosCount
-        self._ActionLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in subtable.PosLookupRecord]
+        self.PosCount = subtable.PosCount
+        self.PosLookupRecord = [PosLookupRecord().loadFromFontTools(record) for record in subtable.PosLookupRecord]
         return self
+
+    def _get_ActionCount(self):
+        return self.PosCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.PosLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 class PosLookupRecord(BaseLookupRecord): pass

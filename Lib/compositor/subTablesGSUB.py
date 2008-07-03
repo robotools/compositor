@@ -356,21 +356,24 @@ class GSUBLookupType5Format1(BaseContextFormat1SubTable):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["Coverage", "SubRuleSet", "_RuleSet"] + globalSubstitutionSubTableSlots
+    __slots__ = ["Coverage", "SubRuleSet"] + globalSubstitutionSubTableSlots
 
     def __init__(self):
         super(GSUBLookupType5Format1, self).__init__()
         self.SubstFormat = 1
         self.Coverage = None
         self.SubRuleSet = []
-        self._RuleSet = self.SubRuleSet
 
     def loadFromFontTools(self, subtable, lookup):
         super(GSUBLookupType5Format1, self).loadFromFontTools(subtable, lookup)
         self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
         self.SubRuleSet = [SubRuleSet().loadFromFontTools(subRuleSet) for subRuleSet in subtable.SubRuleSet]
-        self._RuleSet = self.SubRuleSet
         return self
+
+    def _get_RuleSet(self):
+        return self.SubRuleSet
+
+    _RuleSet = property(_get_RuleSet)
 
 
 class SubRuleSet(object):
@@ -386,16 +389,19 @@ class SubRuleSet(object):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["SubRule", "_Rule"]
+    __slots__ = ["SubRule"]
 
     def __init__(self):
         self.SubRule = []
-        self._Rule = self.SubRule
 
     def loadFromFontTools(self, subRuleSet):
         self.SubRule = [SubRule().loadFromFontTools(subRule) for subRule in subRuleSet.SubRule]
-        self._Rule = self.SubRule
         return self
+
+    def _get_Rule(self):
+        return self.SubRule
+
+    _Rule = property(_get_Rule)
 
 
 class SubRule(object):
@@ -411,24 +417,30 @@ class SubRule(object):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["Input", "GlyphCount", "SubstCount", "SubstLookupRecord", "_ActionCount", "_ActionLookupRecord"]
+    __slots__ = ["Input", "GlyphCount", "SubstCount", "SubstLookupRecord"]
 
     def __init__(self):
         self.Input = []
         self.GlyphCount = 0
         self.SubstCount = 0
         self.SubstLookupRecord = []
-        self._ActionCount = self.SubstCount
-        self._ActionLookupRecord = self.SubstLookupRecord
 
     def loadFromFontTools(self, subRule):
         self.Input = list(subRule.Input)
         self.GlyphCount = subRule.GlyphCount
         self.SubstCount = subRule.SubstCount
         self.SubstLookupRecord = [SubstLookupRecord().loadFromFontTools(record) for record in subRule.SubstLookupRecord]
-        self._ActionCount = self.SubstCount
-        self._ActionLookupRecord = self.SubstLookupRecord
         return self
+
+    def _get_ActionCount(self):
+        return self.SubstCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.SubstLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 class GSUBLookupType5Format2(BaseContextFormat2SubTable):
@@ -438,7 +450,7 @@ class GSUBLookupType5Format2(BaseContextFormat2SubTable):
     - SubClassRuleCnt attribute is not implemented.
     """
 
-    __slots__ = ["Coverage", "ClassDef", "SubClassSet", "_ClassSet"] + globalSubstitutionSubTableSlots
+    __slots__ = ["Coverage", "ClassDef", "SubClassSet"] + globalSubstitutionSubTableSlots
 
     def __init__(self):
         super(GSUBLookupType5Format2, self).__init__()
@@ -446,7 +458,6 @@ class GSUBLookupType5Format2(BaseContextFormat2SubTable):
         self.Coverage = None
         self.ClassDef = None
         self.SubClassSet = []
-        self._ClassSet = self.SubClassSet
 
     def loadFromFontTools(self, subtable, lookup):
         super(GSUBLookupType5Format2, self).loadFromFontTools(subtable, lookup)
@@ -458,8 +469,12 @@ class GSUBLookupType5Format2(BaseContextFormat2SubTable):
                 self.SubClassSet.append(None)
             else:
                 self.SubClassSet.append(SubClassSet().loadFromFontTools(subClassSet))
-        self._ClassSet = self.SubClassSet
         return self
+
+    def _get_ClassSet(self):
+        return self.SubClassSet
+
+    _ClassSet = property(_get_ClassSet)
 
 
 class SubClassSet(object):
@@ -469,16 +484,19 @@ class SubClassSet(object):
     - SubClassRuleCnt attribute is not implemented.
     """
 
-    __slots__ = ["SubClassRule", "_ClassRule"]
+    __slots__ = ["SubClassRule"]
 
     def __init__(self):
         self.SubClassRule = []
-        self._ClassRule = self.SubClassRule
 
     def loadFromFontTools(self, subClassSet):
         self.SubClassRule = [SubClassRule().loadFromFontTools(subClassRule) for subClassRule in subClassSet.SubClassRule]
-        self._ClassRule = self.SubClassRule
         return self
+
+    def _get_ClassRule(self):
+        return self.SubClassRule
+
+    _ClassRule = property(_get_ClassRule)
 
 
 class SubClassRule(object):
@@ -494,24 +512,30 @@ class SubClassRule(object):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["Class", "GlyphCount", "SubstCount", "SubstLookupRecord", "_ActionCount", "_ActionLookupRecord"]
+    __slots__ = ["Class", "GlyphCount", "SubstCount", "SubstLookupRecord"]
 
     def __init__(self):
         self.Class = []
         self.GlyphCount = 0
         self.SubstCount = 0
         self.SubstLookupRecord = []
-        self._ActionCount = self.SubstCount
-        self._ActionLookupRecord = self.SubstLookupRecord
 
     def loadFromFontTools(self, subClassRule):
         self.Class = list(subClassRule.Class)
         self.GlyphCount = subClassRule.GlyphCount
         self.SubstCount = subClassRule.SubstCount
         self.SubstLookupRecord = [SubstLookupRecord().loadFromFontTools(record) for record in subClassRule.SubstLookupRecord]
-        self._ActionCount = self.SubstCount
-        self._ActionLookupRecord = self.SubstLookupRecord
         return self
+
+    def _get_ActionCount(self):
+        return self.SubstCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.SubstLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 class GSUBLookupType5Format3(BaseContextFormat3SubTable):
@@ -534,8 +558,6 @@ class GSUBLookupType5Format3(BaseContextFormat3SubTable):
         self.GlyphCount = 0
         self.SubstCount = 0
         self.SubstLookupRecord = []
-        self._ActionCount = self.SubstCount
-        self._ActionLookupRecord = self.SubstLookupRecord
 
     def loadFromFontTools(self, subtable, lookup):
         super(GSUBLookupType5Format3, self).loadFromFontTools(subtable, lookup)
@@ -543,9 +565,17 @@ class GSUBLookupType5Format3(BaseContextFormat3SubTable):
         self.GlyphCount = subtable.GlyphCount
         self.SubstCount = subtable.SubstCount
         self.SubstLookupRecord = [SubstLookupRecord().loadFromFontTools(record) for record in subtable.SubstLookupRecord]
-        self._ActionCount = self.SubstCount
-        self._ActionLookupRecord = self.SubstLookupRecord
         return self
+
+    def _get_ActionCount(self):
+        return self.SubstCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.SubstLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 # -------------
@@ -566,21 +596,24 @@ class GSUBLookupType6Format1(BaseChainingContextFormat1SubTable):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["Coverage", "ChainSubRuleSet", "_ChainRuleSet"] + globalSubstitutionSubTableSlots
+    __slots__ = ["Coverage", "ChainSubRuleSet"] + globalSubstitutionSubTableSlots
 
     def __init__(self):
         super(GSUBLookupType6Format1, self).__init__()
         self.SubstFormat = 1
         self.Coverage = None
         self.ChainSubRuleSet = []
-        self._ChainRuleSet = self.ChainSubRuleSet
 
     def loadFromFontTools(self, subtable, lookup):
         super(GSUBLookupType6Format1, self).loadFromFontTools(subtable, lookup)
         self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
         self.ChainSubRuleSet = [ChainSubRuleSet().loadFromFontTools(chainSubRuleSet) for chainSubRuleSet in subtable.ChainSubRuleSet]
-        self._ChainRuleSet = self.ChainSubRuleSet
         return self
+
+    def _get_ChainRuleSet(self):
+        return self.ChainSubRuleSet
+
+    _ChainRuleSet = property(_get_ChainRuleSet)
 
 
 class ChainSubRuleSet(object):
@@ -596,16 +629,19 @@ class ChainSubRuleSet(object):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["ChainSubRule", "_ChainRule"]
+    __slots__ = ["ChainSubRule"]
 
     def __init__(self):
         self.ChainSubRule = []
-        self._ChainRule = self.ChainSubRule
 
     def loadFromFontTools(self, chainSubRuleSet):
         self.ChainSubRule = [ChainSubRule().loadFromFontTools(chainSubRule) for chainSubRule in chainSubRuleSet.ChainSubRule]
-        self._ChainRule = self.ChainSubRule
         return self
+
+    def _get_ChainRule(self):
+        return self.ChainSubRule
+
+    _ChainRule = property(_get_ChainRule)
 
 
 class ChainSubRule(object):
@@ -623,8 +659,7 @@ class ChainSubRule(object):
 
     __slots__ = ["BacktrackGlyphCount", "Backtrack", "InputGlyphCount", "Input",
                 "LookAheadGlyphCount", "LookAhead",
-                "SubstCount", "SubstLookupRecord",
-                "_ActionCount", "_ActionLookupRecord"]
+                "SubstCount", "SubstLookupRecord",]
 
     def __init__(self):
         self.BacktrackGlyphCount = 0
@@ -635,8 +670,6 @@ class ChainSubRule(object):
         self.LookAhead = []
         self.SubstCount = 0
         self.SubstLookupRecord = []
-        self._ActionCount = self.SubstCount
-        self._ActionLookupRecord = self.SubstLookupRecord
 
     def loadFromFontTools(self, chainSubRule):
         self.BacktrackGlyphCount = chainSubRule.BacktrackGlyphCount
@@ -647,9 +680,17 @@ class ChainSubRule(object):
         self.LookAhead = list(chainSubRule.LookAhead)
         self.SubstCount = chainSubRule.SubstCount
         self.SubstLookupRecord = [SubstLookupRecord().loadFromFontTools(record) for record in chainSubRule.SubstLookupRecord]
-        self._ActionCount = self.SubstCount
-        self._ActionLookupRecord = self.SubstLookupRecord
         return self
+
+    def _get_ActionCount(self):
+        return self.SubstCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.SubstLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 class GSUBLookupType6Format2(BaseChainingContextFormat2SubTable):
@@ -666,7 +707,7 @@ class GSUBLookupType6Format2(BaseChainingContextFormat2SubTable):
     """
 
     __slots__ = ["Coverage", "BacktrackClassDef", "InputClassDef",
-        "LookAheadClassDef", "ChainSubClassSet", "_ChainClassSet"] + globalSubstitutionSubTableSlots
+        "LookAheadClassDef", "ChainSubClassSet"] + globalSubstitutionSubTableSlots
 
     def __init__(self):
         super(GSUBLookupType6Format2, self).__init__()
@@ -676,7 +717,6 @@ class GSUBLookupType6Format2(BaseChainingContextFormat2SubTable):
         self.InputClassDef = None
         self.LookAheadClassDef = None
         self.ChainSubClassSet = []
-        self._ChainClassSet = self.ChainSubClassSet
 
     def loadFromFontTools(self, subtable, lookup):
         super(GSUBLookupType6Format2, self).loadFromFontTools(subtable, lookup)
@@ -690,8 +730,12 @@ class GSUBLookupType6Format2(BaseChainingContextFormat2SubTable):
                 self.ChainSubClassSet.append(None)
             else:
                 self.ChainSubClassSet.append(ChainSubClassSet().loadFromFontTools(chainSubClassSet))
-        self._ChainClassSet = self.ChainSubClassSet
         return self
+
+    def _get_ChainClassSet(self):
+        return self.ChainSubClassSet
+
+    _ChainClassSet = property(_get_ChainClassSet)
 
 
 class ChainSubClassSet(object):
@@ -707,16 +751,19 @@ class ChainSubClassSet(object):
     is abstracted so that it can be shared between GSUB and GPOS.
     """
 
-    __slots__ = ["ChainSubClassRule", "_ChainClassRule"]
+    __slots__ = ["ChainSubClassRule"]
 
     def __init__(self):
         self.ChainSubClassRule = None
-        self._ChainClassRule = self.ChainSubClassRule
 
     def loadFromFontTools(self, chainSubClassSet):
         self.ChainSubClassRule = [ChainSubClassRule().loadFromFontTools(chainSubClassRule) for chainSubClassRule in chainSubClassSet.ChainSubClassRule]
-        self._ChainClassRule = self.ChainSubClassRule
         return self
+
+    def _get_ChainClassRule(self):
+        return self.ChainSubClassRule
+
+    _ChainClassRule = property(_get_ChainClassRule)
 
 
 class ChainSubClassRule(object):
@@ -735,8 +782,7 @@ class ChainSubClassRule(object):
     __slots__ = ["BacktrackGlyphCount", "Backtrack",
         "InputGlyphCount", "Input",
         "LookAheadGlyphCount", "LookAhead",
-        "SubstCount", "SubstLookupRecord",
-        "_ActionCount", "_ActionLookupRecord"]
+        "SubstCount", "SubstLookupRecord"]
 
     def __init__(self):
         self.BacktrackGlyphCount = 0
@@ -747,8 +793,6 @@ class ChainSubClassRule(object):
         self.LookAhead = []
         self.SubstCount = 0
         self.SubstLookupRecord = []
-        self._ActionCount = self.SubstCount
-        self._ActionLookupRecord = self.SubstLookupRecord
 
     def loadFromFontTools(self, chainSubClassRule):
         self.BacktrackGlyphCount = chainSubClassRule.BacktrackGlyphCount
@@ -759,9 +803,17 @@ class ChainSubClassRule(object):
         self.LookAhead = list(chainSubClassRule.LookAhead)
         self.SubstCount = chainSubClassRule.SubstCount
         self.SubstLookupRecord = [SubstLookupRecord().loadFromFontTools(record) for record in chainSubClassRule.SubstLookupRecord]
-        self._ActionCount = self.SubstCount
-        self._ActionLookupRecord = self.SubstLookupRecord
         return self
+
+    def _get_ActionCount(self):
+        return self.SubstCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.SubstLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 class GSUBLookupType6Format3(BaseChainingContextFormat3SubTable):
@@ -779,24 +831,29 @@ class GSUBLookupType6Format3(BaseChainingContextFormat3SubTable):
 
     __slots__ = ["BacktrackGlyphCount", "BacktrackCoverage", "InputGlyphCount", "InputCoverage"
                 "LookaheadGlyphCount", "LookaheadCoverage",
-                "SubstCount", "SubstLookupRecord",
-                "_ActionCount", "_ActionLookupRecord"] + globalSubstitutionSubTableSlots
+                "SubstCount", "SubstLookupRecord"] + globalSubstitutionSubTableSlots
 
     def __init__(self):
         super(GSUBLookupType6Format3, self).__init__()
         self.SubstFormat = 3
         self.SubstCount = 0
-        self._ActionCount = self.SubstCount
         self.SubstLookupRecord = []
-        self._ActionLookupRecord = self.SubstLookupRecord
 
     def loadFromFontTools(self, subtable, lookup):
         super(GSUBLookupType6Format3, self).loadFromFontTools(subtable, lookup)
         self.SubstCount = subtable.SubstCount
-        self._ActionCount = self.SubstCount
         self.SubstLookupRecord = [SubstLookupRecord().loadFromFontTools(record) for record in subtable.SubstLookupRecord]
-        self._ActionLookupRecord = self.SubstLookupRecord
         return self
+
+    def _get_ActionCount(self):
+        return self.SubstCount
+
+    _ActionCount = property(_get_ActionCount)
+
+    def _get_ActionLookupRecord(self):
+        return self.SubstLookupRecord
+
+    _ActionLookupRecord = property(_get_ActionLookupRecord)
 
 
 class SubstLookupRecord(BaseLookupRecord): pass
