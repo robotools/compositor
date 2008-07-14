@@ -175,7 +175,10 @@ class Font(object):
         if isinstance(stringOrGlyphList, basestring):
             stringOrGlyphList = self.stringToGlyphNames(stringOrGlyphList)
         if case != "unchanged":
-            stringOrGlyphList = convertCase(case, stringOrGlyphList, self.cmap, self.reversedCMAP, langSys.strip(), self.fallbackGlyph)
+            l = langSys
+            if l is not None:
+                l = l.strip()
+            stringOrGlyphList = convertCase(case, stringOrGlyphList, self.cmap, self.reversedCMAP, l, self.fallbackGlyph)
         glyphRecords = self.glyphListToGlyphRecords(stringOrGlyphList)
         if rightToLeft:
             glyphRecords.reverse()
