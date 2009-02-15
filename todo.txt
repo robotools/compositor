@@ -1,14 +1,12 @@
-- make the tables capable of referencing *one* cmap and reversed
-  cmap. this will allow for the cmap to change in applications
-  that would need such a thing.
+- the GlyphRecord object is getting messy. Look into
+  consolidating all the various private reference attributes.
+- the various private contextual attrs should be moved to properties.
+- make the various Count attributes properties.
+
 
 Not yet supported:
 GSUB Lookup Type 8 (Reverse Chaining Context)
 LookupFlag.RightToLeft
-GDEF.AttachList
-GDEF.LigCaretList
-DFLT/dflt language tags
-GPOS Lookup Types 5 & 6 may be, and probably are, buggy.
 
 Skipped:
 - should the glyph width be calculated into the glyph record's
