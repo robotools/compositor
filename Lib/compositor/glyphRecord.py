@@ -176,7 +176,7 @@ def glyphRecordsToGlyphNames(glyphRecords):
 def _testMath():
     """
     >>> from subTablesGPOS import ValueRecord
-    >>> vr = ValueRecord(None)
+    >>> vr = ValueRecord()
     >>> vr.XPlacement = 1
     >>> vr.YPlacement = 2
     >>> vr.XAdvance = 3
