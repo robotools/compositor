@@ -21,6 +21,7 @@ from cmap import reverseCMAP
 from scriptList import ScriptList
 from featureList import FeatureList
 from lookupList import GSUBLookupList, GPOSLookupList
+from subTablesBase import Coverage
 from classDefinitionTables import MarkAttachClassDef, GlyphClassDef
 from textUtilities import isWordBreakBefore, isWordBreakAfter
 
@@ -358,16 +359,103 @@ class GDEF(object):
     def __init__(self):
         self.GlyphClassDef = None
         self.MarkAttachClassDef = None
+        self.LigCaretList = None
 
     def loadFromFontTools(self, table):
         table = table.table
-        self.GlyphClassDef = GlyphClassDef().loadFromFontTools(table.GlyphClassDef)
+        if table.GlyphClassDef is not None:
+            self.GlyphClassDef = GlyphClassDef().loadFromFontTools(table.GlyphClassDef)
         if table.AttachList is not None:
             raise NotImplementedError("Need GDEF sample with AttachList")
         if table.LigCaretList is not None:
-            raise NotImplementedError("Need GDEF sample with LigCaretList")
-        if table.MarkAttachClassDef is None:
-            self.MarkAttachClassDef = None
-        else:
+            self.LigCaretList = LigCaretList().loadFromFontTools(table.LigCaretList)
+        if table.MarkAttachClassDef is not None:
             self.MarkAttachClassDef = MarkAttachClassDef().loadFromFontTools(table.MarkAttachClassDef)
         return self
+
+
+class LigCaretList(object):
+
+    """
+    Deviation from spec:
+    - LigGlyphCount attribute is not implemented.
+    """
+
+    __slots__ = ["LigGlyph", "Coverage"]
+
+    def __init__(self):
+        self.LigGlyph = []
+        self.Coverage = None
+
+    def loadFromFontTools(self, table):
+        self.Coverage = Coverage().loadFromFontTools(table.Coverage)
+        for ligGlyph in table.LigGlyph:
+            ligGlyph = LigGlyph().loadFromFontTools(ligGlyph)
+            self.LigGlyph.append(ligGlyph)
+        return self
+
+
+class LigGlyph(object):
+
+    """
+    Deviation from spec:
+    - CaretValueCount attribute is not implemented.
+    """
+
+    __slots__ = ["CaretValue"]
+
+    def __init__(self):
+        self.CaretValue = []
+
+    def loadFromFontTools(self, ligGlyph):
+        for caretValue in ligGlyph.CaretValue:
+            format = caretValue.Format
+            if format == 1:
+                caretValue = CaretValueFormat1().loadFromFontTools(caretValue)
+            elif format == 2:
+                caretValue = CaretValueFormat2().loadFromFontTools(caretValue)
+            else:
+                caretValue = CaretValueFormat3().loadFromFontTools(caretValue)
+            self.CaretValue.append(caretValue)
+        return self
+
+
+class CaretValueFormat1(object):
+
+    __slots__ = ["CaretValueFormat", "Coordinate"]
+
+    def __init__(self):
+        self.CaretValueFormat = 1
+        self.Coordinate = None
+
+    def loadFromFontTools(self, caretValue):
+        self.Coordinate = caretValue.Coordinate
+        return self
+
+
+class CaretValueFormat2(object):
+
+    __slots__ = ["CaretValueFormat", "CaretValuePoint"]
+
+    def __init__(self):
+        self.CaretValueFormat = 2
+        self.CaretValuePoint = None
+
+    def loadFromFontTools(self, caretValue):
+        self.CaretValuePoint = caretValue.CaretValuePoint
+        return self
+
+
+class CaretValueFormat3(CaretValueFormat1):
+
+    """
+    Deviation from spec:
+    - DeviceTable attribute is not implemented.
+    """
+
+    __slots__ = ["CaretValueFormat", "Coordinate", "DeviceTable"]
+
+    def __init__(self):
+        super(CaretValueFormat3, self).__init__()
+        self.DeviceTable = None
+
