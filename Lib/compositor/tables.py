@@ -359,6 +359,7 @@ class GDEF(object):
     def __init__(self):
         self.GlyphClassDef = None
         self.MarkAttachClassDef = None
+        self.AttachList = None
         self.LigCaretList = None
 
     def loadFromFontTools(self, table):
@@ -366,11 +367,49 @@ class GDEF(object):
         if table.GlyphClassDef is not None:
             self.GlyphClassDef = GlyphClassDef().loadFromFontTools(table.GlyphClassDef)
         if table.AttachList is not None:
-            raise NotImplementedError("Need GDEF sample with AttachList")
+            self.AttachList = AttachList().loadFromFontTools(table.AttachList)
         if table.LigCaretList is not None:
             self.LigCaretList = LigCaretList().loadFromFontTools(table.LigCaretList)
         if table.MarkAttachClassDef is not None:
             self.MarkAttachClassDef = MarkAttachClassDef().loadFromFontTools(table.MarkAttachClassDef)
+        return self
+
+
+class AttachList(object):
+
+    """
+    Deviation from spec:
+    - GlyphCount attribute is not implemented.
+    """
+
+    __slots__ = ["AttachPoint", "Coverage"]
+
+    def __init__(self):
+        self.Coverage = None
+        self.AttachPoint = []
+
+    def loadFromFontTools(self, attachList):
+        self.Coverage = Coverage().loadFromFontTools(attachList.Coverage)
+        for attachPoint in attachList.AttachPoint:
+            attachPoint = AttachPoint().loadFromFontTools(attachPoint)
+            self.AttachPoint.append(attachPoint)
+        return self
+
+
+class AttachPoint(object):
+
+    """
+    Deviation from spec:
+    - PointCount attribute is not implemented.
+    """
+
+    __slots__ = ["PointIndex"]
+
+    def __init__(self):
+        self.PointIndex = []
+
+    def loadFromFontTools(self, attachPoint):
+        self.PointIndex = list(attachPoint.PointIndex)
         return self
 
 
@@ -387,9 +426,9 @@ class LigCaretList(object):
         self.LigGlyph = []
         self.Coverage = None
 
-    def loadFromFontTools(self, table):
-        self.Coverage = Coverage().loadFromFontTools(table.Coverage)
-        for ligGlyph in table.LigGlyph:
+    def loadFromFontTools(self, ligCaretList):
+        self.Coverage = Coverage().loadFromFontTools(ligCaretList.Coverage)
+        for ligGlyph in ligCaretList.LigGlyph:
             ligGlyph = LigGlyph().loadFromFontTools(ligGlyph)
             self.LigGlyph.append(ligGlyph)
         return self
