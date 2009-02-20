@@ -168,7 +168,9 @@ class Font(object):
                 if self.fallbackGlyph is None:
                     continue
                 glyphName = self.fallbackGlyph
-            glyphRecords.append(GlyphRecord(glyphName))
+            record = GlyphRecord(glyphName)
+            record.xAdvance = self[glyphName].width
+            glyphRecords.append(record)
         return glyphRecords
 
     def process(self, stringOrGlyphList, script="latn", langSys=None, rightToLeft=False, case="unchanged", logger=None):
