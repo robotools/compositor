@@ -368,8 +368,8 @@ class GPOSLookupType3(BaseSubTable):
                         entryIndex = self.Coverage.index(nextGlyph)
                         entryAnchor = self.EntryExitRecord[entryIndex].EntryAnchor
                         if exitAnchor is not None and entryAnchor is not None:
-                            currentRecord.xAdvance = exitAnchor.XCoordinate - entryAnchor.XCoordinate
-                            currentRecord.yAdvance = exitAnchor.YCoordinate - entryAnchor.YCoordinate
+                            currentRecord.xAdvance += exitAnchor.XCoordinate - currentRecord.advanceWidth - entryAnchor.XCoordinate
+                            currentRecord.yAdvance += exitAnchor.YCoordinate - currentRecord.advanceHeight - entryAnchor.YCoordinate
                         processed.append(currentRecord)
                         glyphRecords = glyphRecords[1:]
         return processed, glyphRecords, performedPos
@@ -454,8 +454,8 @@ class GPOSLookupType4(BaseSubTable):
                         baseRecord = self.BaseArray.BaseRecord[baseCoverageIndex]
                         baseAnchor = baseRecord.BaseAnchor[markRecord.Class]
                         xOffset, yOffset = _calculateAnchorDifference(baseAnchor, markAnchor)
-                        currentRecord.xPlacement += xOffset - previousRecord.xAdvance
-                        currentRecord.yPlacement += yOffset - previousRecord.yAdvance
+                        currentRecord.xPlacement += xOffset - previousRecord.advanceWidth
+                        currentRecord.yPlacement += yOffset - previousRecord.advanceHeight
                         processed.append(currentRecord)
                         glyphRecords = glyphRecords[1:]
         return processed, glyphRecords, performedPos
@@ -653,8 +653,8 @@ class GPOSLookupType5(BaseSubTable):
                         ligatureAnchor = componentRecord.LigatureAnchor[markRecord.Class]
                         if ligatureAnchor is not None:
                             xOffset, yOffset = _calculateAnchorDifference(ligatureAnchor, markAnchor)
-                            currentRecord.xPlacement += xOffset - previousRecord.xAdvance
-                            currentRecord.yPlacement += yOffset - previousRecord.yAdvance
+                            currentRecord.xPlacement += xOffset - previousRecord.advanceWidth
+                            currentRecord.yPlacement += yOffset - previousRecord.advanceHeight
                         processed.append(currentRecord)
                         glyphRecords = glyphRecords[1:]
         return processed, glyphRecords, performedPos
@@ -774,8 +774,8 @@ class GPOSLookupType6(BaseSubTable):
                         mark2Record = self.Mark2Array.Mark2Record[mark2CoverageIndex]
                         mark2Anchor = mark2Record.Mark2Anchor[mark1Record.Class]
                         xOffset, yOffset = _calculateAnchorDifference(mark2Anchor, mark1Anchor)
-                        currentRecord.xPlacement += xOffset - previousRecord.xAdvance
-                        currentRecord.yPlacement += yOffset - previousRecord.yAdvance
+                        currentRecord.xPlacement += xOffset - previousRecord.advanceWidth
+                        currentRecord.yPlacement += yOffset - previousRecord.advanceHeight
                         processed.append(currentRecord)
                         glyphRecords = glyphRecords[1:]
         return processed, glyphRecords, performedPos

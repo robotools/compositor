@@ -169,7 +169,6 @@ class Font(object):
                     continue
                 glyphName = self.fallbackGlyph
             record = GlyphRecord(glyphName)
-            record.xAdvance = self[glyphName].width
             glyphRecords.append(record)
         return glyphRecords
 
@@ -198,7 +197,11 @@ class Font(object):
         if self.gpos is not None:
             if logger:
                 logger.logTableStart(self.gpos)
-            glyphRecords = self.gpos.process(glyphRecords, script=script, langSys=langSys, logger=logger)
+            advancedRecords = []
+            for glyphRecord in glyphRecords:
+                glyphRecord.advanceWidth = self[glyphRecord.glyphName].width
+                advancedRecords.append(glyphRecord)
+            glyphRecords = self.gpos.process(advancedRecords, script=script, langSys=langSys, logger=logger)
             if logger:
                 logger.logResults(glyphRecords)
                 logger.logTableEnd()

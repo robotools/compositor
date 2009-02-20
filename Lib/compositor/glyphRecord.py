@@ -69,7 +69,7 @@ class GlyphRecord(object):
     """
 
     __slots__ = ["glyph", "glyphName", "xPlacement", "yPlacement",
-                "xAdvance", "yAdvance",
+                "xAdvance", "yAdvance", "advanceWidth", "advanceHeight",
                 "alternates", "_alternatesReference",
                 "ligatureComponents", "_ligatureComponents", "_ligatureComponentsReference",
                 "_substitutionHistory"]
@@ -81,6 +81,8 @@ class GlyphRecord(object):
         self.yPlacement = 0
         self.xAdvance = 0
         self.yAdvance = 0
+        self.advanceWidth = 0
+        self.advanceHeight = 0
         self.alternates = []
         self._alternatesReference = None
         self._ligatureComponents = []
