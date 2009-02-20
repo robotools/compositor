@@ -368,9 +368,8 @@ class GPOSLookupType3(BaseSubTable):
                         entryIndex = self.Coverage.index(nextGlyph)
                         entryAnchor = self.EntryExitRecord[entryIndex].EntryAnchor
                         if exitAnchor is not None and entryAnchor is not None:
-                            xOffset, yOffset = _calculateAnchorDifference(exitAnchor, entryAnchor)
-                            nextRecord.xPlacement += xOffset
-                            nextRecord.yPlacement += yOffset
+                            currentRecord.xAdvance = exitAnchor.XCoordinate - entryAnchor.XCoordinate
+                            currentRecord.yAdvance = exitAnchor.YCoordinate - entryAnchor.YCoordinate
                         processed.append(currentRecord)
                         glyphRecords = glyphRecords[1:]
         return processed, glyphRecords, performedPos
@@ -455,8 +454,8 @@ class GPOSLookupType4(BaseSubTable):
                         baseRecord = self.BaseArray.BaseRecord[baseCoverageIndex]
                         baseAnchor = baseRecord.BaseAnchor[markRecord.Class]
                         xOffset, yOffset = _calculateAnchorDifference(baseAnchor, markAnchor)
-                        currentRecord.xPlacement += xOffset
-                        currentRecord.yPlacement += yOffset
+                        currentRecord.xPlacement += xOffset - previousRecord.xAdvance
+                        currentRecord.yPlacement += yOffset - previousRecord.yAdvance
                         processed.append(currentRecord)
                         glyphRecords = glyphRecords[1:]
         return processed, glyphRecords, performedPos
@@ -649,14 +648,13 @@ class GPOSLookupType5(BaseSubTable):
                         markAnchor = markRecord.MarkAnchor
                         ligatureCoverageIndex = self.LigatureCoverage.index(previousGlyph)
                         ligatureAttach = self.LigatureArray.LigatureAttach[ligatureCoverageIndex]
-                        #componentIndex = previousRecord.ligatureComponents.index(???)
-                        # XXX How is the component index determined?
-                        componentIndex = 0 # XXX!?
+                        componentIndex = abs(previousRecordIndex) - 1
                         componentRecord = ligatureAttach.ComponentRecord[componentIndex]
                         ligatureAnchor = componentRecord.LigatureAnchor[markRecord.Class]
-                        xOffset, yOffset = _calculateAnchorDifference(ligatureAnchor, markAnchor)
-                        currentRecord.xPlacement += xOffset
-                        currentRecord.yPlacement += yOffset
+                        if ligatureAnchor is not None:
+                            xOffset, yOffset = _calculateAnchorDifference(ligatureAnchor, markAnchor)
+                            currentRecord.xPlacement += xOffset - previousRecord.xAdvance
+                            currentRecord.yPlacement += yOffset - previousRecord.yAdvance
                         processed.append(currentRecord)
                         glyphRecords = glyphRecords[1:]
         return processed, glyphRecords, performedPos
@@ -776,8 +774,8 @@ class GPOSLookupType6(BaseSubTable):
                         mark2Record = self.Mark2Array.Mark2Record[mark2CoverageIndex]
                         mark2Anchor = mark2Record.Mark2Anchor[mark1Record.Class]
                         xOffset, yOffset = _calculateAnchorDifference(mark2Anchor, mark1Anchor)
-                        currentRecord.xPlacement += xOffset
-                        currentRecord.yPlacement += yOffset
+                        currentRecord.xPlacement += xOffset - previousRecord.xAdvance
+                        currentRecord.yPlacement += yOffset - previousRecord.yAdvance
                         processed.append(currentRecord)
                         glyphRecords = glyphRecords[1:]
         return processed, glyphRecords, performedPos
