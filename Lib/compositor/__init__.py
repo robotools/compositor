@@ -202,7 +202,7 @@ class Font(object):
         if self.gpos is not None:
             if logger:
                 logger.logTableStart(self.gpos)
-            glyphRecords = self.gpos.process(advancedRecords, script=script, langSys=langSys, logger=logger)
+            glyphRecords = self.gpos.process(glyphRecords, script=script, langSys=langSys, logger=logger)
             if logger:
                 logger.logResults(glyphRecords)
                 logger.logTableEnd()
