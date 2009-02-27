@@ -21,7 +21,7 @@ except NameError:
         return iterable
 
 
-version = "0.0.1"
+version = "0.2b"
 
 
 class CompositorError(Exception): pass

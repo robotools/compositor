@@ -1,0 +1,8 @@
+include License.txt
+include Install.txt
+include demo.py
+include demo.html
+include development.txt
+include usage.html
+include usage.txt
+prune Lib/compositor/test
