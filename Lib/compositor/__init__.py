@@ -33,7 +33,10 @@ class Font(object):
         self.path = path
         self.fallbackGlyph = ".notdef"
         self._glyphs = {}
-        self.source = TTFont(path)
+        if isinstance(path, TTFont):
+            self.source = path
+        else:
+            self.source = TTFont(path)
         self.loadGlyphSet()
         self.loadInfo()
         self.loadCMAP()
