@@ -100,6 +100,15 @@ class Font(object):
             raise CompositorError("Could not extract name data from name table.")
         self.info.familyName = familyName
         self.info.styleName = styleName
+        # stylistic set names
+        self.stylisticSetNames = {}
+        for i in range(20):
+            ssNameID = 256 + i
+            ssTag = "ss%02i" % (i + 1)
+            namePriority = [(ssNameID, 1, 0, 0), (ssNameID, 1, None, None), (ssNameID, 3, 1, 1033), (ssNameID, 3, None, None)]
+            ssName = self._skimNameIDs(nameIDs, namePriority)
+            if ssName:
+                self.stylisticSetNames[ssTag] = ssName
 
     def _skimNameIDs(self, nameIDs, priority):
         for (nameID, platformID, platEncID, langID) in priority:
