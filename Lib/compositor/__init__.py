@@ -38,9 +38,9 @@ class Font(object):
         else:
             self.source = TTFont(path)
         self.loadGlyphSet()
-        self.loadInfo()
         self.loadCMAP()
         self.loadFeatures()
+        self.loadInfo()
         if glyphClass is None:
             glyphClass = Glyph
         self.glyphClass = glyphClass
@@ -102,13 +102,14 @@ class Font(object):
         self.info.styleName = styleName
         # stylistic set names
         self.stylisticSetNames = {}
-        for i in range(20):
-            ssNameID = 256 + i
-            ssTag = "ss%02i" % (i + 1)
-            namePriority = [(ssNameID, 1, 0, 0), (ssNameID, 1, None, None), (ssNameID, 3, 1, 1033), (ssNameID, 3, None, None)]
-            ssName = self._skimNameIDs(nameIDs, namePriority)
-            if ssName:
-                self.stylisticSetNames[ssTag] = ssName
+        for featureRecord in self.gsub.FeatureList.FeatureRecord:
+            params = featureRecord.Feature.FeatureParams
+            if hasattr(params, "UINameID"):
+                ssNameID = params.UINameID
+                namePriority = [(ssNameID, 1, 0, 0), (ssNameID, 1, None, None), (ssNameID, 3, 1, 1033), (ssNameID, 3, None, None)]
+                ssName = self._skimNameIDs(nameIDs, namePriority)
+                if ssName:
+                    self.stylisticSetNames[featureRecord.FeatureTag] = ssName
 
     def _skimNameIDs(self, nameIDs, priority):
         for (nameID, platformID, platEncID, langID) in priority:
