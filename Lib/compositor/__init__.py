@@ -101,15 +101,16 @@ class Font(object):
         self.info.familyName = familyName
         self.info.styleName = styleName
         # stylistic set names
-        self.stylisticSetNames = {}
-        for featureRecord in self.gsub.FeatureList.FeatureRecord:
-            params = featureRecord.Feature.FeatureParams
-            if hasattr(params, "UINameID"):
-                ssNameID = params.UINameID
-                namePriority = [(ssNameID, 1, 0, 0), (ssNameID, 1, None, None), (ssNameID, 3, 1, 1033), (ssNameID, 3, None, None)]
-                ssName = self._skimNameIDs(nameIDs, namePriority)
-                if ssName:
-                    self.stylisticSetNames[featureRecord.FeatureTag] = ssName
+        if self.gsub:
+            self.stylisticSetNames = {}
+            for featureRecord in self.gsub.FeatureList.FeatureRecord:
+                params = featureRecord.Feature.FeatureParams
+                if hasattr(params, "UINameID"):
+                    ssNameID = params.UINameID
+                    namePriority = [(ssNameID, 1, 0, 0), (ssNameID, 1, None, None), (ssNameID, 3, 1, 1033), (ssNameID, 3, None, None)]
+                    ssName = self._skimNameIDs(nameIDs, namePriority)
+                    if ssName:
+                        self.stylisticSetNames[featureRecord.FeatureTag] = ssName
 
     def _skimNameIDs(self, nameIDs, priority):
         for (nameID, platformID, platEncID, langID) in priority:
