@@ -245,10 +245,11 @@ class BaseTable(object):
         # 4. get the list of applicable features
         applicableFeatures = set()
         if specificLangSys is None:
-            if defaultLangSys.FeatureCount:
-                applicableFeatures |= set(defaultLangSys.FeatureIndex)
-            if defaultLangSys.ReqFeatureIndex != 0xFFFF:
-                applicableFeatures.add(defaultLangSys.ReqFeatureIndex)
+            if defaultLangSys is not None:
+                if defaultLangSys.FeatureCount:
+                    applicableFeatures |= set(defaultLangSys.FeatureIndex)
+                if defaultLangSys.ReqFeatureIndex != 0xFFFF:
+                    applicableFeatures.add(defaultLangSys.ReqFeatureIndex)
         else:
             if specificLangSys.FeatureCount:
                 applicableFeatures |= set(specificLangSys.FeatureIndex)
