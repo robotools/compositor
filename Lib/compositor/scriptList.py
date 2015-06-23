@@ -44,7 +44,7 @@ class Script(object):
     def loadFromFontTools(self, script):
         self.DefaultLangSys = None
         if script.DefaultLangSys is not None:
-            LangSys().loadFromFontTools(script.DefaultLangSys)
+            self.DefaultLangSys = LangSys().loadFromFontTools(script.DefaultLangSys)
         self.LangSysCount = script.LangSysCount
         self.LangSysRecord = [LangSysRecord().loadFromFontTools(record) for record in script.LangSysRecord]
         return self
