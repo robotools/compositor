@@ -5,20 +5,6 @@ from subTablesBase import BaseSubTable, BaseLookupRecord, Coverage,\
     BaseContextFormat1SubTable, BaseContextFormat2SubTable, BaseContextFormat3SubTable,\
     BaseChainingContextFormat1SubTable, BaseChainingContextFormat2SubTable, BaseChainingContextFormat3SubTable
 
-try:
-    set
-except NameError:
-    from sets import Set as set
-
-try:
-    sorted
-except NameError:
-    def sorted(iterable):
-        if not isinstance(iterable, list):
-            iterable = list(iterable)
-        iterable.sort()
-        return iterable
-
 
 __all__ = [
         "GSUBLookupType1Format2", "GSUBLookupType2", "GSUBLookupType3", "GSUBLookupType4",

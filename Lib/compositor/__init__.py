@@ -6,20 +6,6 @@ from glyphRecord import GlyphRecord
 from cmap import extractCMAP, reverseCMAP
 from textUtilities import convertCase
 
-try:
-    set
-except NameError:
-    from sets import Set as set
-
-try:
-    sorted
-except NameError:
-    def sorted(iterable):
-        if not isinstance(iterable, list):
-            iterable = list(iterable)
-        iterable.sort()
-        return iterable
-
 
 version = "0.3b"
 

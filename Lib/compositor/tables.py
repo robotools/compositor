@@ -2,20 +2,6 @@
 GSUB, GPOS and GDEF table objects.
 """
 
-try:
-    set
-except NameError:
-    from sets import Set as set
-
-try:
-    sorted
-except NameError:
-    def sorted(iterable):
-        if not isinstance(iterable, list):
-            iterable = list(iterable)
-        iterable.sort()
-        return iterable
-
 import unicodedata
 from cmap import reverseCMAP
 from scriptList import ScriptList

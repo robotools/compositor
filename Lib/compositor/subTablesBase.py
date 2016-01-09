@@ -1,23 +1,5 @@
 import weakref
 
-try:
-    sorted
-except NameError:
-    def sorted(iterable):
-        if not isinstance(iterable, list):
-            iterable = list(iterable)
-        iterable.sort()
-        return iterable
-
-try:
-    reversed
-except NameError:
-    def reversed(iterable):
-        iterable = list(iterable)
-        iterable.reverse()
-        return iterable
-
-
 # ------------
 # Base Classes
 # ------------

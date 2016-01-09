@@ -1,12 +1,3 @@
-try:
-    reversed
-except NameError:
-    def reversed(iterable):
-        iterable = list(iterable)
-        iterable.reverse()
-        return iterable
-
-
 class GlyphRecord(object):
 
     """

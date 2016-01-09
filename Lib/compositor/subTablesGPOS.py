@@ -3,14 +3,6 @@ from subTablesBase import BaseSubTable, BaseLookupRecord, Coverage,\
     BaseContextFormat1SubTable, BaseContextFormat2SubTable, BaseContextFormat3SubTable,\
     BaseChainingContextFormat1SubTable, BaseChainingContextFormat2SubTable, BaseChainingContextFormat3SubTable
 
-try:
-    reversed
-except NameError:
-    def reversed(iterable):
-        iterable = list(iterable)
-        iterable.reverse()
-        return iterable
-
 __all__ = [
         "GPOSLookupType1Format1", "GPOSLookupType1Format2",
         "GPOSLookupType2Format1", "GPOSLookupType2Format2",

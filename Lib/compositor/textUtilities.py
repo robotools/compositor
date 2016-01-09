@@ -3,19 +3,6 @@ from compositor.cmap import reverseCMAP
 from compositor.caseConversionMaps import lowerToSingleUpper, upperToSingleLower, specialCasing, softDotted
 from compositor.wordBreakProperties import wordBreakProperties
 
-try:
-    set
-except NameError:
-    from sets import Set as set
-
-try:
-    reversed
-except NameError:
-    def reversed(iterable):
-        iterable = list(iterable)
-        iterable.reverse()
-        return iterable
-
 # ---------------
 # Case Conversion
 # ---------------

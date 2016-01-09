@@ -19,14 +19,6 @@ The returned log is in XML format.
 from cStringIO import StringIO
 from xmlWriter import XMLWriter
 
-try:
-    sorted
-except NameError:
-    def sorted(iterable):
-        if not isinstance(iterable, list):
-            iterable = list(iterable)
-        iterable.sort()
-        return iterable
 
 class Logger(object):
 
