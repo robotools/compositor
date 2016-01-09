@@ -143,6 +143,12 @@ class Font(LayoutEngine):
     def getGlyphOrder(self):
         return self.source.getGlyphOrder()
 
+    def process(self, *args, **kwargs):
+        glyphRecords = super(Font, self).process(*args, **kwargs)
+        for glyphRecord in glyphRecords:
+            glyphRecord.advanceWidth += self[glyphRecord.glyphName].width
+        return glyphRecords
+
 
 class Info(object): pass
 

@@ -89,11 +89,6 @@ class LayoutEngine(object):
             if logger:
                 logger.logResults(glyphRecords)
                 logger.logTableEnd()
-        advancedRecords = []
-        for glyphRecord in glyphRecords:
-            glyphRecord.advanceWidth = self[glyphRecord.glyphName].width
-            advancedRecords.append(glyphRecord)
-        glyphRecords = advancedRecords
         if self.gpos is not None:
             if logger:
                 logger.logTableStart(self.gpos)
