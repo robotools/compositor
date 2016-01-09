@@ -1,0 +1,1 @@
+class CompositorError(Exception): pass
