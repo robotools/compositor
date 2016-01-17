@@ -27,7 +27,7 @@ class LayoutEngine(object):
         if self.gpos is not None:
             self.gpos.setCMAP(self.reversedCMAP)
 
-    def setTables(self, gdef=None, gsub=None, gpos=None):
+    def setFeatureTables(self, gdef=None, gsub=None, gpos=None):
         self.gdef = None
         if gdef is not None:
             self.gdef = GDEF().loadFromFontTools(gdef)
@@ -59,10 +59,6 @@ class LayoutEngine(object):
     def glyphListToGlyphRecords(self, glyphList):
         glyphRecords = []
         for glyphName in glyphList:
-            if glyphName not in self:
-                if self.fallbackGlyph is None:
-                    continue
-                glyphName = self.fallbackGlyph
             record = GlyphRecord(glyphName)
             glyphRecords.append(record)
         return glyphRecords

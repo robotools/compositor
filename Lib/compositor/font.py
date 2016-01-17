@@ -136,18 +136,36 @@ class Font(LayoutEngine):
             self._glyphs[name] = glyph
         return self._glyphs[name]
 
-    # -------------
-    # Miscellaneous
-    # -------------
+    # -----------------
+    # string processing
+    # -----------------
 
-    def getGlyphOrder(self):
-        return self.source.getGlyphOrder()
+    def stringToGlyphNames(self, string):
+        glyphNames = []
+        for c in string:
+            c = unicode(c)
+            v = ord(c)
+            if v in self.cmap:
+                glyphNames.append(self.cmap[v])
+            elif self.fallbackGlyph is not None:
+                glyphNames.append(self.fallbackGlyph)
+        return glyphNames
+
+    def stringToGlyphRecords(self, string):
+        return [GlyphRecord(glyphName) for glyphName in self.stringToGlyphNames(string)]
 
     def process(self, *args, **kwargs):
         glyphRecords = super(Font, self).process(*args, **kwargs)
         for glyphRecord in glyphRecords:
             glyphRecord.advanceWidth += self[glyphRecord.glyphName].width
         return glyphRecords
+
+    # -------------
+    # Miscellaneous
+    # -------------
+
+    def getGlyphOrder(self):
+        return self.source.getGlyphOrder()
 
 
 class Info(object): pass
