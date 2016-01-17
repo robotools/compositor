@@ -69,6 +69,9 @@ class BaseTable(object):
         self._setDefaultFeatureApplicationStates()
         return self
 
+    def setCMAP(self, reversedCMAP):
+        self._cmap = reversedCMAP
+
     def process(self, glyphRecords, script="latn", langSys=None, logger=None):
         """
         Pass the list of GlyphRecord objects through the features
