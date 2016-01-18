@@ -1,7 +1,7 @@
 from random import choice
-from classDefinitionTables import ClassDef
-from glyphRecord import glyphNamesToGlyphRecords
-from subTablesBase import BaseSubTable, BaseLookupRecord, Coverage,\
+from compositor.classDefinitionTables import ClassDef
+from compositor.glyphRecord import glyphNamesToGlyphRecords
+from compositor.subTablesBase import BaseSubTable, BaseLookupRecord, Coverage,\
     BaseContextFormat1SubTable, BaseContextFormat2SubTable, BaseContextFormat3SubTable,\
     BaseChainingContextFormat1SubTable, BaseChainingContextFormat2SubTable, BaseChainingContextFormat3SubTable
 
@@ -898,4 +898,3 @@ class GSUBLookupType7(BaseSubTable):
 
 
 class GSUBLookupType8(BaseSubTable): pass
-

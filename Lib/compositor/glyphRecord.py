@@ -62,7 +62,7 @@ class GlyphRecord(object):
     __slots__ = ["glyph", "glyphName", "xPlacement", "yPlacement",
                 "xAdvance", "yAdvance", "advanceWidth", "advanceHeight",
                 "alternates", "_alternatesReference",
-                "ligatureComponents", "_ligatureComponents", "_ligatureComponentsReference",
+                "_ligatureComponents", "_ligatureComponentsReference",
                 "_substitutionHistory"]
 
     def __init__(self, glyphName):

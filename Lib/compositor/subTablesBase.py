@@ -1,3 +1,4 @@
+from __future__ import print_function
 import weakref
 
 # ------------
@@ -35,7 +36,7 @@ class BaseSubTable(object):
         else:
             format = "Unknown"
         className = self.__class__.__name__
-        print "[Compositor] %s skipping Lookup Type %s Format %s" % (className, lookupType, format)
+        print("[Compositor] %s skipping Lookup Type %s Format %s" % (className, lookupType, format))
         return processed, glyphRecords, False
 
     def _lookupFlagCoversGlyph(self, glyphName):
@@ -456,4 +457,3 @@ class Coverage(object):
         return list(self._glyphs)
 
     Glyphs = property(_get_Glyphs, doc="This is for reference only. Not for use in processing.")
-

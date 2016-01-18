@@ -3,13 +3,13 @@ GSUB, GPOS and GDEF table objects.
 """
 
 import unicodedata
-from cmap import reverseCMAP
-from scriptList import ScriptList
-from featureList import FeatureList
-from lookupList import GSUBLookupList, GPOSLookupList
-from subTablesBase import Coverage
-from classDefinitionTables import MarkAttachClassDef, GlyphClassDef
-from textUtilities import isWordBreakBefore, isWordBreakAfter
+from compositor.cmap import reverseCMAP
+from compositor.scriptList import ScriptList
+from compositor.featureList import FeatureList
+from compositor.lookupList import GSUBLookupList, GPOSLookupList
+from compositor.subTablesBase import Coverage
+from compositor.classDefinitionTables import MarkAttachClassDef, GlyphClassDef
+from compositor.textUtilities import isWordBreakBefore, isWordBreakAfter
 
 
 defaultOnFeatures = [
@@ -487,4 +487,3 @@ class CaretValueFormat3(CaretValueFormat1):
     def __init__(self):
         super(CaretValueFormat3, self).__init__()
         self.DeviceTable = None
-

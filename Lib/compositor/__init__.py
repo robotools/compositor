@@ -1,5 +1,5 @@
-from error import CompositorError
-from layoutEngine import LayoutEngine
-from font import Font, Info, Glyph
+from compositor.error import CompositorError
+from compositor.layoutEngine import LayoutEngine
+from compositor.font import Font, Info, Glyph
 
 version = "0.3b"

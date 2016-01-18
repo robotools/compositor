@@ -159,10 +159,10 @@ def _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, reverse
                 raise NotImplementedError
             ## Before_Dot
             # C is followed by U+0307 combining
-            # dot above. Any sequence of charac- 
-            # ters with a combining class that is nei- 
-            # ther 0 nor 230 may intervene between 
-            # the current character and the com- 
+            # dot above. Any sequence of charac-
+            # ters with a combining class that is nei-
+            # ther 0 nor 230 may intervene between
+            # the current character and the com-
             # bining dot above.
             elif context == "Before_Dot":
                 # not referenced in SpecialCasing
@@ -181,9 +181,9 @@ def _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, reverse
                         if combining == 0 or combining == 230:
                             break
             ## Final_Sigma
-            # Within the closest word boundaries 
-            # containing C, there is a cased letter 
-            # before C, and there is no cased letter 
+            # Within the closest word boundaries
+            # containing C, there is a cased letter
+            # before C, and there is no cased letter
             # after C.
             elif context == "Final_Sigma":
                 glyphNames = [cmap.get(i, i) for i in glyphs]

@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 from distutils.core import setup
 
 try:
     import fontTools
 except:
-    print "*** Warning: defcon requires FontTools, see:"
-    print "    fonttools.sf.net"
+    print("*** Warning: defcon requires FontTools, see:")
+    print("    github.com/behdad/fonttools")
 
 
 
-setup(name="compositor",
+setup(
+    name="compositor",
     version="0.2b",
     description="A simple OpenType GSUB and GPOS engine.",
     author="Tal Leming",

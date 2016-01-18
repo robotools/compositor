@@ -20,7 +20,7 @@ class ClassDef(object):
         330
     """
 
-    __slots__ = ["_map", "ClassFormat", "Glyphs"]
+    __slots__ = ["_map", "ClassFormat"]
 
     def __init__(self):
         self.ClassFormat = None
