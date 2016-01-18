@@ -1,8 +1,8 @@
-from tables import GSUB, GPOS, GDEF
-from glyphRecord import GlyphRecord
-from cmap import reverseCMAP
-from textUtilities import convertCase
-from error import CompositorError
+from compositor.tables import GSUB, GPOS, GDEF
+from compositor.glyphRecord import GlyphRecord
+from compositor.cmap import reverseCMAP
+from compositor.textUtilities import convertCase
+from compositor.error import CompositorError
 
 
 class LayoutEngine(object):

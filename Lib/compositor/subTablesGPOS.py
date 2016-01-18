@@ -1,5 +1,5 @@
-from classDefinitionTables import ClassDef
-from subTablesBase import BaseSubTable, BaseLookupRecord, Coverage,\
+from compositor.classDefinitionTables import ClassDef
+from compositor.subTablesBase import BaseSubTable, BaseLookupRecord, Coverage,\
     BaseContextFormat1SubTable, BaseContextFormat2SubTable, BaseContextFormat3SubTable,\
     BaseChainingContextFormat1SubTable, BaseChainingContextFormat2SubTable, BaseChainingContextFormat3SubTable
 
@@ -1377,4 +1377,3 @@ class GPOSLookupType9(BaseSubTable):
 
     def process(self, processed, glyphRecords, featureTag):
         return self.ExtSubTable.process(processed, glyphRecords, featureTag)
-

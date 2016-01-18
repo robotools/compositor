@@ -4,8 +4,8 @@ GSUB and GPOS LookupList objects (and friends).
 
 
 import weakref
-from subTablesGSUB import *
-from subTablesGPOS import *
+from compositor.subTablesGSUB import *
+from compositor.subTablesGPOS import *
 
 
 # ------------
@@ -15,7 +15,7 @@ from subTablesGPOS import *
 
 class BaseLookupList(object):
 
-    __slots__ = ["LookupCount", "Lookup", "_LookupClass", "__weakref__"]
+    __slots__ = ["LookupCount", "Lookup", "__weakref__"]
     _LookupClass = None
 
     def __init__(self):
@@ -205,4 +205,3 @@ class GPOSLookupList(BaseLookupList):
 
     __slots__ = []
     _LookupClass = GPOSLookup
-

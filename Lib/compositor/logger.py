@@ -16,7 +16,10 @@ Usage:
 The returned log is in XML format.
 """
 
-from cStringIO import StringIO
+try:
+    from io import StringIO
+except:
+    from cStringIO import StringIO
 from xmlWriter import XMLWriter
 
 

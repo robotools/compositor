@@ -1,9 +1,9 @@
 import weakref
 from fontTools.ttLib import TTFont
 from fontTools.pens.basePen import AbstractPen
-from layoutEngine import LayoutEngine
-from cmap import extractCMAP
-from error import CompositorError
+from compositor.layoutEngine import LayoutEngine
+from compositor.cmap import extractCMAP
+from compositor.error import CompositorError
 
 
 class Font(LayoutEngine):
@@ -65,7 +65,7 @@ class Font(LayoutEngine):
             langID = nameRecord.langID
             text = nameRecord.string
             nameIDs[nameID, platformID, platEncID, langID] = text
-        # to retrive the family and style names, first start
+        # to retrieve the family and style names, first start
         # with the preferred name entries and progress to less
         # specific entries until something is found.
         familyPriority = [(16, 1, 0, 0), (16, 1, None, None), (16, None, None, None),
@@ -108,13 +108,13 @@ class Font(LayoutEngine):
 
     def loadFeatures(self):
         gdef = None
-        if self.source.has_key("GDEF"):
+        if "GDEF" in self.source:
             gdef = self.source["GDEF"]
         gsub = None
-        if self.source.has_key("GSUB"):
+        if "GSUB" in self.source:
             gsub = self.source["GSUB"]
         gpos = None
-        if self.source.has_key("GPOS"):
+        if "GPOS" in self.source:
             gpos = self.source["GPOS"]
         self.setFeatureTables(gdef, gsub, gpos)
 
@@ -126,7 +126,7 @@ class Font(LayoutEngine):
         return self.glyphSet.keys()
 
     def __contains__(self, name):
-        return self.glyphSet.has_key(name)
+        return name in self.glyphSet
 
     def __getitem__(self, name):
         if name not in self._glyphs:
@@ -186,12 +186,13 @@ class Glyph(object):
     def draw(self, pen):
         self.source.draw(pen)
 
-    def _getBounds(self):
+    def _get_bounds(self):
         from fontTools.pens.boundsPen import BoundsPen
         pen = BoundsPen(self.font())
         self.draw(pen)
         return pen.bounds
-    bounds = property(_getBounds)
+
+    bounds = property(_get_bounds)
 
 
 class _GlyphLoadPen(AbstractPen):
