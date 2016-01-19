@@ -63,8 +63,7 @@ class Font(LayoutEngine):
             platformID = nameRecord.platformID
             platEncID = nameRecord.platEncID
             langID = nameRecord.langID
-            text = nameRecord.string
-            nameIDs[nameID, platformID, platEncID, langID] = text
+            nameIDs[nameID, platformID, platEncID, langID] = nameRecord.toUnicode()
         # to retrieve the family and style names, first start
         # with the preferred name entries and progress to less
         # specific entries until something is found.
@@ -101,9 +100,6 @@ class Font(LayoutEngine):
                     continue
                 if lID != langID and langID is not None:
                     continue
-                # make sure there are no endian issues
-                # XXX right way to do this?
-                text = "".join([i for i in text if i != "\x00"])
                 return text
 
     def loadFeatures(self):
