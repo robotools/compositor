@@ -427,11 +427,10 @@ class Coverage(object):
         330
     """
 
-    __slots__ = ["_glyphs", "CoverageFormat"]
+    __slots__ = ["_glyphs"]
 
 
     def __init__(self, coverage=None):
-        self.CoverageFormat = 1
         if coverage is not None:
             coverage = list(coverage)
         self._glyphs = coverage
@@ -439,10 +438,7 @@ class Coverage(object):
     def loadFromFontTools(self, coverage):
         # the data coming in could be a fontTools
         # Coverage object or a list of glyph names
-        if isinstance(coverage, list):
-            self.CoverageFormat = 1
-        else:
-            self.CoverageFormat = coverage.Format
+        if not isinstance(coverage, list):
             coverage = coverage.glyphs
         self._glyphs = list(coverage)
         return self
