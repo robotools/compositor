@@ -16,10 +16,7 @@ Usage:
 The returned log is in XML format.
 """
 
-try:
-    from io import StringIO
-except:
-    from cStringIO import StringIO
+from fontTools.misc.py23 import StringIO
 from xmlWriter import XMLWriter
 
 
