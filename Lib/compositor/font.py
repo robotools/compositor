@@ -2,6 +2,7 @@ import weakref
 from fontTools.ttLib import TTFont
 from fontTools.pens.basePen import AbstractPen
 from compositor.layoutEngine import LayoutEngine
+from compositor.glyphRecord import GlyphRecord
 from compositor.cmap import extractCMAP
 from compositor.error import CompositorError
 
@@ -9,6 +10,7 @@ from compositor.error import CompositorError
 class Font(LayoutEngine):
 
     def __init__(self, path, glyphClass=None):
+        super(Font, self).__init__()
         self.path = path
         self._glyphs = {}
         if isinstance(path, TTFont):
@@ -34,7 +36,7 @@ class Font(LayoutEngine):
 
     def loadCMAP(self):
         cmap = extractCMAP(self.source)
-        self.setCmap(self.cmap)
+        self.setCMAP(cmap)
 
     def loadGlyphSet(self):
         self.glyphSet = self.source.getGlyphSet()
@@ -126,6 +128,8 @@ class Font(LayoutEngine):
 
     def __getitem__(self, name):
         if name not in self._glyphs:
+            if name not in self.glyphSet:
+                name = self.fallbackGlyph
             glyph = self.glyphSet[name]
             index = self._glyphOrder[name]
             glyph = self.glyphClass(name, index, glyph, self)
@@ -150,11 +154,9 @@ class Font(LayoutEngine):
     def stringToGlyphRecords(self, string):
         return [GlyphRecord(glyphName) for glyphName in self.stringToGlyphNames(string)]
 
-    def process(self, *args, **kwargs):
-        glyphRecords = super(Font, self).process(*args, **kwargs)
+    def didProcessingGSUB(self, glyphRecords):
         for glyphRecord in glyphRecords:
             glyphRecord.advanceWidth += self[glyphRecord.glyphName].width
-        return glyphRecords
 
     # -------------
     # Miscellaneous
