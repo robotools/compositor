@@ -79,23 +79,42 @@ class LayoutEngine(object):
             logger.logStart()
             glyphNames = [r.glyphName for r in glyphRecords]
             logger.logMainSettings(glyphNames, script, langSys)
+        self.willBeginProcessingGSUB(glyphRecords)
         if self.gsub is not None:
+
             if logger:
                 logger.logTableStart(self.gsub)
             glyphRecords = self.gsub.process(glyphRecords, script=script, langSys=langSys, logger=logger)
             if logger:
                 logger.logResults(glyphRecords)
                 logger.logTableEnd()
+
+        self.didProcessingGSUB(glyphRecords)
+        self.willBeginProcessingGPOS(glyphRecords)
         if self.gpos is not None:
+
             if logger:
                 logger.logTableStart(self.gpos)
             glyphRecords = self.gpos.process(glyphRecords, script=script, langSys=langSys, logger=logger)
             if logger:
                 logger.logResults(glyphRecords)
                 logger.logTableEnd()
+        self.didProcessingGPOS(glyphRecords)
         if logger:
             logger.logEnd()
         return glyphRecords
+
+    def willBeginProcessingGSUB(self, glyphRecords):
+        pass
+
+    def didProcessingGSUB(self, glyphRecords):
+        pass
+
+    def willBeginProcessingGPOS(self, glyphRecords):
+        pass
+
+    def didProcessingGPOS(self, glyphRecords):
+        pass
 
     # ------------------
     # feature management
