@@ -4,16 +4,12 @@ and character mapping in general.
 """
 
 def extractCMAP(ttFont):
-    cmap = {}
-    cmapIDs = [(3, 10), (0, 3), (3, 1)]
-    for i in range(len(cmapIDs)):
-        if ttFont["cmap"].getcmap(*cmapIDs[i]):
-            cmap = ttFont["cmap"].getcmap(*cmapIDs[i]).cmap
-            break
-    if not cmap:
-        from compositor.error import CompositorError
-        raise CompositorError("Found neither CMAP (3, 10), (0, 3), nor (3, 1) in font.")
-    return cmap
+    for platformID, encodingID in [(3, 10), (0, 3), (3, 1)]:
+        cmapSubtable = ttFont["cmap"].getcmap(platformID, encodingID)
+        if cmapSubtable is not None:
+            return cmapSubtable.cmap
+    from compositor.error import CompositorError
+    raise CompositorError("Found neither CMAP (3, 10), (0, 3), nor (3, 1) in font.")
 
 def reverseCMAP(cmap):
     reversed = {}
