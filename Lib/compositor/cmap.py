@@ -11,7 +11,8 @@ def extractCMAP(ttFont):
             cmap = ttFont["cmap"].getcmap(*cmapIDs[i]).cmap
             break
     if not cmap:
-        raise AttributeError("Found neither CMAP (3, 10), (0, 3), nor (3, 1) in font.")
+        from compositor.error import CompositorError
+        raise CompositorError("Found neither CMAP (3, 10), (0, 3), nor (3, 1) in font.")
     return cmap
 
 def reverseCMAP(cmap):
