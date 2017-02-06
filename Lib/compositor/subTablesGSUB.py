@@ -98,8 +98,17 @@ class GSUBLookupType2(BaseSubTable):
 
     def loadFromFontTools(self, subtable, lookup):
         super(GSUBLookupType2, self).loadFromFontTools(subtable, lookup)
-        self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
-        self.Sequence = [Sequence().loadFromFontTools(sequence) for sequence in subtable.Sequence]
+        try:
+            self.Coverage = Coverage().loadFromFontTools(subtable.Coverage)
+            self.Sequence = [Sequence().loadFromFontTools(sequence)
+                             for sequence in subtable.Sequence]
+        except AttributeError:
+            # the API for MultipleSubst lookups changed with fonttools 3.1:
+            # https://github.com/fonttools/fonttools/pull/364
+            mapping = getattr(subtable, "mapping", {})
+            coverage = sorted(mapping.keys())
+            self.Coverage = Coverage(coverage)
+            self.Sequence = [Sequence(mapping[glyph]) for glyph in coverage]
         return self
 
     def process(self, processed, glyphRecords, featureTag):
@@ -128,13 +137,12 @@ class Sequence(object):
 
     __slots__ = ["Substitute"]
 
-    def __init__(self):
-        self.Substitute = []
+    def __init__(self, substitute=None):
+        self.Substitute = list(substitute) if substitute is not None else []
 
     def loadFromFontTools(self, sequence):
         self.Substitute = list(sequence.Substitute)
         return self
-
 
 # -------------
 # Lookup Type 3
