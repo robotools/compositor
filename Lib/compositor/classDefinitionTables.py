@@ -20,14 +20,12 @@ class ClassDef(object):
         330
     """
 
-    __slots__ = ["_map", "ClassFormat"]
+    __slots__ = ["_map"]
 
     def __init__(self):
-        self.ClassFormat = None
         self._map = None
 
     def loadFromFontTools(self, classDef):
-        self.ClassFormat = classDef.Format
         self._map = dict(classDef.classDefs)
         return self
 
