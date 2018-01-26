@@ -1,4 +1,5 @@
 import weakref
+import sys
 from fontTools.ttLib import TTFont
 from fontTools.pens.basePen import AbstractPen
 from compositor.layoutEngine import LayoutEngine
@@ -143,7 +144,8 @@ class Font(LayoutEngine):
     def stringToGlyphNames(self, string):
         glyphNames = []
         for c in string:
-            c = unicode(c)
+            if sys.version_info[0] < 3:
+                c = unicode(c)
             v = ord(c)
             if v in self.cmap:
                 glyphNames.append(self.cmap[v])
