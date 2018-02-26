@@ -1,3 +1,5 @@
+from fontTools.misc.py23 import *
+
 import weakref
 from fontTools.ttLib import TTFont
 from fontTools.pens.basePen import AbstractPen
