@@ -17,7 +17,9 @@ setup(
     description="A simple OpenType GSUB and GPOS engine.",
     author="Tal Leming",
     author_email="tal@typesupply.com",
-    url="https://github.com/typesupply/compositor",
+    maintainer="Just van Rossum, Frederik Berlaen",
+    maintainer_email="justvanrossum@gmail.com",
+    url="https://github.com/robotools/compositor",
     license="MIT",
     packages=["compositor"],
     package_dir={"":"Lib"}
