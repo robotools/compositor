@@ -7,7 +7,7 @@ try:
     import fontTools
 except:
     print("*** Warning: defcon requires FontTools, see:")
-    print("    github.com/behdad/fonttools")
+    print("    https://github.com/fonttools/fonttools")
 
 
 
