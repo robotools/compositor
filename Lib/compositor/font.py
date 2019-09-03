@@ -1,6 +1,6 @@
-from fontTools.misc.py23 import *
-
+from __future__ import unicode_literals
 import weakref
+from fontTools.misc.py23 import *
 from fontTools.ttLib import TTFont
 from fontTools.pens.basePen import AbstractPen
 from compositor.layoutEngine import LayoutEngine
