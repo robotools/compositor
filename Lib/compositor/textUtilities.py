@@ -1,3 +1,5 @@
+from fontTools.misc.py23 import *
+
 import unicodedata
 from compositor.cmap import reverseCMAP
 from compositor.caseConversionMaps import lowerToSingleUpper, upperToSingleLower, specialCasing, softDotted

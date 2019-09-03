@@ -17,7 +17,7 @@ The returned log is in XML format.
 """
 
 from fontTools.misc.py23 import StringIO
-from xmlWriter import XMLWriter
+from fontTools.misc.xmlWriter import XMLWriter
 
 
 class Logger(object):
