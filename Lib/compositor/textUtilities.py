@@ -1,4 +1,3 @@
-from fontTools.misc.py23 import *
 
 import unicodedata
 from compositor.cmap import reverseCMAP
@@ -45,7 +44,7 @@ def convertCase(case, glyphNames, cmap, reversedCMAP, language=None, fallbackGly
     converted = []
     for index, uniValue in enumerate(glyphs):
         # glyph name indicating that there is no available unicode
-        if isinstance(uniValue, basestring):
+        if isinstance(uniValue, str):
             converted.append(uniValue)
             continue
         ## special casing
@@ -71,7 +70,7 @@ def convertCase(case, glyphNames, cmap, reversedCMAP, language=None, fallbackGly
     # convert back to glyph names
     glyphNames = []
     for uniValue in converted:
-        if isinstance(uniValue, basestring):
+        if isinstance(uniValue, str):
             glyphNames.append(uniValue)
             continue
         glyphNames.append(cmap.get(uniValue, fallbackGlyph))
@@ -105,9 +104,9 @@ def _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, reverse
                 previous = None
                 for otherUniValue in reversed(glyphs[:index]):
                     previous = otherUniValue
-                    if isinstance(otherUniValue, basestring):
+                    if isinstance(otherUniValue, str):
                         break
-                    combining = unicodedata.combining(unichr(otherUniValue))
+                    combining = unicodedata.combining(chr(otherUniValue))
                     if combining == 230:
                         previous = None
                         break
@@ -127,9 +126,9 @@ def _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, reverse
                 previous = None
                 for otherUniValue in reversed(glyphs[:index]):
                     previous = otherUniValue
-                    if isinstance(otherUniValue, basestring):
+                    if isinstance(otherUniValue, str):
                         break
-                    combining = unicodedata.combining(unichr(otherUniValue))
+                    combining = unicodedata.combining(chr(otherUniValue))
                     if combining == 230:
                         previous = None
                         break
@@ -148,9 +147,9 @@ def _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, reverse
                 next = None
                 for otherUniValue in glyphs[index+1:]:
                     next = otherUniValue
-                    if isinstance(otherUniValue, basestring):
+                    if isinstance(otherUniValue, str):
                         break
-                    combining = unicodedata.combining(unichr(otherUniValue))
+                    combining = unicodedata.combining(chr(otherUniValue))
                     if combining == 230:
                         contextMatch = True
                         break
@@ -173,13 +172,13 @@ def _handleSpecialCasing(case, glyphs, index, uniValue, converted, cmap, reverse
                 next = None
                 contextMatch = True
                 for otherUniValue in glyphs[index+1:]:
-                    if isinstance(otherUniValue, basestring):
+                    if isinstance(otherUniValue, str):
                         break
                     if otherUniValue == convertCodeToInt("0307"):
                         contextMatch = False
                         break
                     else:
-                        combining = unicodedata.combining(unichr(otherUniValue))
+                        combining = unicodedata.combining(chr(otherUniValue))
                         if combining == 0 or combining == 230:
                             break
             ## Final_Sigma

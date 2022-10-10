@@ -15,8 +15,7 @@ Usage:
 
 The returned log is in XML format.
 """
-
-from fontTools.misc.py23 import StringIO
+from io import StringIO
 from fontTools.misc.xmlWriter import XMLWriter
 
 

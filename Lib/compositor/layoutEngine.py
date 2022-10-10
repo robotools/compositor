@@ -3,7 +3,7 @@ from compositor.glyphRecord import GlyphRecord
 from compositor.cmap import reverseCMAP
 from compositor.textUtilities import convertCase
 from compositor.error import CompositorError
-from fontTools.misc.py23 import basestring, tounicode
+from fontTools.misc.textTools import tostr
 
 
 class LayoutEngine(object):
@@ -46,7 +46,7 @@ class LayoutEngine(object):
     def stringToGlyphNames(self, string):
         glyphNames = []
         for c in string:
-            c = tounicode(c)
+            c = tostr(c)
             v = ord(c)
             if v in self.cmap:
                 glyphNames.append(self.cmap[v])
@@ -65,7 +65,7 @@ class LayoutEngine(object):
         return glyphRecords
 
     def process(self, stringOrGlyphList, script="latn", langSys=None, rightToLeft=False, case="unchanged", logger=None):
-        if isinstance(stringOrGlyphList, basestring):
+        if isinstance(stringOrGlyphList, str):
             stringOrGlyphList = self.stringToGlyphNames(stringOrGlyphList)
         if case != "unchanged":
             l = langSys

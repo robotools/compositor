@@ -1,8 +1,8 @@
 from __future__ import unicode_literals
 import weakref
-from fontTools.misc.py23 import *
 from fontTools.ttLib import TTFont
 from fontTools.pens.basePen import AbstractPen
+from fontTools.misc.textTools import tostr
 from compositor.layoutEngine import LayoutEngine
 from compositor.glyphRecord import GlyphRecord
 from compositor.cmap import extractCMAP
@@ -145,7 +145,7 @@ class Font(LayoutEngine):
     def stringToGlyphNames(self, string):
         glyphNames = []
         for c in string:
-            c = unicode(c)
+            c = tostr(c)
             v = ord(c)
             if v in self.cmap:
                 glyphNames.append(self.cmap[v])
