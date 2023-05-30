@@ -2,7 +2,7 @@
 ScriptList object (and friends).
 """
 
-__all__ = ["ScriptList", "ScriptRecord", "ScriptCount", "LangSysRecord", "LangSysCount"]
+__all__ = ["ScriptList", "ScriptRecord", "LangSysRecord"]
 
 class ScriptList(object):
 
