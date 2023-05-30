@@ -3,7 +3,7 @@ FeatureList object (and friends).
 """
 
 
-__all__ = ["FeatureList", "FeatureRecord", "FeatureCount"]
+__all__ = ["FeatureList", "FeatureRecord"]
 
 
 class FeatureList(object):
